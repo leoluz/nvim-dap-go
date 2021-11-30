@@ -77,6 +77,13 @@ local function setup_go_configuration(dap)
     },
     {
       type = "go",
+      name = "Attach",
+      mode = "local",
+      request = "attach",
+      processId = require('dap.utils').pick_process,
+    },
+    {
+      type = "go",
       name = "Debug test",
       request = "launch",
       mode = "test",
