@@ -2,6 +2,14 @@
 
 An extension for [nvim-dap][1] providing configurations for launching go debugger (delve) and debugging individual tests.
 
+## Features
+
+- Auto launch Delve. No configuration needed. You just have to have `dlv` in your path.
+- Run just the closest test from the cursor in debug mode (uses treesitter). See [debugging individual tests](#debugging-individual-tests) section bellow for more details.
+- Configuration to attach nvim-dap and Delve into a running process and start a debug session.
+- Configuration to start a debug session in the main function.
+- Configuration to run tests in a debug session.
+
 ## Pre-reqs
 
 - Neovim >= 0.5
@@ -31,6 +39,7 @@ lua require('dap-go').setup()
 ### Use nvim-dap as usual
 
 - Call `:lua require('dap').continue()` to start debugging.
+- All pre-configured debuggers will be displayed for you to choose from.
 - See `:help dap-mappings` and `:help dap-api`.
 
 ### Debugging individual tests
