@@ -8,7 +8,7 @@ local tests_query = [[
   parameters: (parameter_list
     . (parameter_declaration
       type: (pointer_type) @type) .)
-  (#eq? @type "*testing.T")
+  (#match? @type "*testing.(T|M)")
   (#match? @testname "^Test.+$")) @parent
 ]]
 
