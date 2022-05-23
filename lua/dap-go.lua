@@ -74,7 +74,7 @@ local function setup_go_adapter(dap)
     -- Wait for delve to start
     vim.defer_fn(
       function()
-        callback({type = "server", host = "127.0.0.1", port = port})
+        callback({type = "server", host = host, port = port})
       end,
       100)
   end
