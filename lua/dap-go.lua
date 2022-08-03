@@ -29,14 +29,27 @@ local function load_module(module_name)
   return module
 end
 
+local function get_addr(host,port)
+    math.randomseed(os.time())
+    while true do
+        port = port and port or tostring(math.random(65535))
+        host = host and host or '127.0.0.1'
+        local addr = string.format("%s:%s", host, port)
+        local ok,chan = pcall(vim.fn.sockconnect,'tcp',addr)
+        if ok and chan ~= 0 then
+            vim.fn.chanclose(chan)
+        else
+            return host,port,addr
+        end
+    end
+end
+
 local function setup_go_adapter(dap)
   dap.adapters.go = function(callback, config)
     local stdout = vim.loop.new_pipe(false)
     local handle
     local pid_or_err
-    local host = config.host or "127.0.0.1"
-    local port = config.port or "38697"
-    local addr = string.format("%s:%s", host, port)
+    local host,port, addr = get_addr(config.host,config.port)
     local opts = {
       stdio = {nil, stdout},
       args = {"dap", "-l", addr},
