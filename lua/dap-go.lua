@@ -45,6 +45,25 @@ local function get_addr(host,port)
     return host, port, string.format("%s:%s",host, port)
 end
 
+local function get_arguments()
+  local co = coroutine.running()
+  if co then
+    return coroutine.create(function()
+      local args = {}
+      vim.ui.input({ prompt = 'Args: ' }, function(input)
+        args = vim.split(input or "", " ")
+      end)
+      coroutine.resume(co, args)
+    end)
+  else
+    local args = {}
+    vim.ui.input({ prompt = 'Args: ' }, function(input)
+      args = vim.split(input or "", " ")
+    end)
+    return args
+  end
+end
+
 local function setup_go_adapter(dap)
   dap.adapters.go = function(callback, config)
     local stdout = vim.loop.new_pipe(false)
@@ -88,6 +107,13 @@ local function setup_go_configuration(dap)
       name = "Debug",
       request = "launch",
       program = "${file}",
+    },
+    {
+      type = "go",
+      name = "Debug (Arguments)",
+      request = "launch",
+      program = "${file}",
+      args = get_arguments,
     },
     {
       type = "go",
