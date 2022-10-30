@@ -1,4 +1,5 @@
 local query = require "vim.treesitter.query"
+local uv = vim.loop
 
 local M = {}
 
@@ -29,19 +30,19 @@ local function load_module(module_name)
   return module
 end
 
+local function get_free_port()
+  local tcp = uv.new_tcp()
+  tcp:bind('127.0.0.1', 0)
+  local port = tcp:getsockname().port
+  tcp:shutdown()
+  tcp:close()
+  return port
+end
+
 local function get_addr(host,port)
-    math.randomseed(os.time())
-    while true do
-        port = port and port or tostring(math.random(65535))
-        host = host and host or '127.0.0.1'
-        local addr = string.format("%s:%s", host, port)
-        local ok,chan = pcall(vim.fn.sockconnect,'tcp',addr)
-        if ok and chan ~= 0 then
-            vim.fn.chanclose(chan)
-        else
-            return host,port,addr
-        end
-    end
+    port = get_free_port()
+    host = host and host or '127.0.0.1'
+    return host, port, string.format("%s:%s",host, port)
 end
 
 local function setup_go_adapter(dap)
@@ -49,7 +50,7 @@ local function setup_go_adapter(dap)
     local stdout = vim.loop.new_pipe(false)
     local handle
     local pid_or_err
-    local host,port, addr = get_addr(config.host,config.port)
+    local host,port,addr = get_addr(config.host,config.port)
     local opts = {
       stdio = {nil, stdout},
       args = {"dap", "-l", addr},
