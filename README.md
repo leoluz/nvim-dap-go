@@ -59,6 +59,15 @@ It is better to define a mapping to invoke this command. See the mapping section
 ![Enter Arguments](./images/image2.png "Enter Arguments")
 ![Begin Debugging](./images/image3.png "Being Debugging")
 
+### Debugging with dlv in headless mode
+
+1. Start `dlv` in headless mode. You can specify subcommands and flags after `--`, e.g.,
+   ```
+   dlv debug -l 127.0.0.1:38697 --headless ./main.go -- subcommand --myflag=xyz
+   ```
+1. Call `:lua require('dap').continue()` to start debugging.
+1. Select the option `Attach remote`.
+
 ## Mappings
 
 ```vimL
