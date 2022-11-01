@@ -40,7 +40,7 @@ local function get_free_port()
 end
 
 local function get_addr(host,port)
-    port = get_free_port()
+    port = port and port or get_free_port()
     host = host and host or '127.0.0.1'
     return host, port, string.format("%s:%s",host, port)
 end
