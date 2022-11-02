@@ -269,7 +269,7 @@ function M.debug_test()
   local testpath = string.format("./%s", relativeFileDirname)
 
   if testname == "" then
-    print("no test found")
+    vim.notify("no test found")
 	return false
   end
 
@@ -277,7 +277,7 @@ function M.debug_test()
   M.last_testpath = testpath
 
   local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
-  print(msg)
+  vim.notify(msg)
   debug_test(testname, testpath)
 
   return true
@@ -288,12 +288,12 @@ function M.debug_last_test()
   local testpath = M.last_testpath
 
   if testname == "" then
-    print("no last run test found")
+    vim.notify("no last run test found")
     return false
   end
 
   local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
-  print(msg)
+  vim.notify(msg)
   debug_test(testname, testpath)
   return true
 end
