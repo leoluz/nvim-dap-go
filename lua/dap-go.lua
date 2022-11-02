@@ -175,7 +175,9 @@ local function get_closest_above_cursor(test_tree)
       end
     end
   end
-  if result.parent then
+  if result == nil then
+    return ""
+  elseif result.parent then
     return string.format("%s/%s", result.parent, result.name)
   else
     return result.name
