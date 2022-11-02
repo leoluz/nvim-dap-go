@@ -150,14 +150,14 @@ function M.setup()
   setup_go_configuration(dap)
 end
 
-local function debug_test(testname)
+local function debug_test(testname, testpath)
   local dap = load_module("dap")
   dap.run({
       type = "go",
       name = testname,
       request = "launch",
       mode = "test",
-      program = "./${relativeFileDirname}",
+      program = testpath,
       args = {"-test.run", testname},
   })
 end
