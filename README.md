@@ -44,8 +44,12 @@ lua require('dap-go').setup()
 
 ### Debugging individual tests
 
+
 To debug the closest method above the cursor use you can run:
 - `:lua require('dap-go').debug_test()` 
+
+Once a test was run, you can simply run it again from anywhere:
+- `:lua require('dap-go').debug_last_test()` 
 
 It is better to define a mapping to invoke this command. See the mapping section bellow.
 

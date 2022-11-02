@@ -1,6 +1,9 @@
 local query = require "vim.treesitter.query"
 
-local M = {}
+local M = {
+	last_testname = "",
+	last_testpath = "",
+}
 
 local tests_query = [[
 (function_declaration
@@ -260,9 +263,37 @@ end
 
 function M.debug_test()
   local testname = get_closest_test()
-  local msg = string.format("starting debug session '%s'...", testname)
+  local relativeFileDirname = vim.fn.fnamemodify(vim.fn.expand("%:.:h"), ":r")
+  local testpath = string.format("./%s", relativeFileDirname)
+
+  if testname == "" then
+    print("no test found")
+	return false
+  end
+
+  M.last_testname = testname
+  M.last_testpath = testpath
+
+  local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
   print(msg)
-  debug_test(testname)
+  debug_test(testname, testpath)
+
+  return true
+end
+
+function M.debug_last_test()
+  local testname = M.last_testname
+  local testpath = M.last_testpath
+
+  if testname == "" then
+    print("no last run test found")
+    return false
+  end
+
+  local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
+  print(msg)
+  debug_test(testname, testpath)
+  return true
 end
 
 return M
