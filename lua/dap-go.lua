@@ -1,6 +1,9 @@
 local query = require "vim.treesitter.query"
 
-local M = {}
+local M = {
+	last_testname = "",
+	last_testpath = "",
+}
 
 local tests_query = [[
 (function_declaration
@@ -147,14 +150,14 @@ function M.setup()
   setup_go_configuration(dap)
 end
 
-local function debug_test(testname)
+local function debug_test(testname, testpath)
   local dap = load_module("dap")
   dap.run({
       type = "go",
       name = testname,
       request = "launch",
       mode = "test",
-      program = "./${relativeFileDirname}",
+      program = testpath,
       args = {"-test.run", testname},
   })
 end
@@ -172,7 +175,9 @@ local function get_closest_above_cursor(test_tree)
       end
     end
   end
-  if result.parent then
+  if result == nil then
+    return ""
+  elseif result.parent then
     return string.format("%s/%s", result.parent, result.name)
   else
     return result.name
@@ -260,9 +265,37 @@ end
 
 function M.debug_test()
   local testname = get_closest_test()
-  local msg = string.format("starting debug session '%s'...", testname)
-  print(msg)
-  debug_test(testname)
+  local relativeFileDirname = vim.fn.fnamemodify(vim.fn.expand("%:.:h"), ":r")
+  local testpath = string.format("./%s", relativeFileDirname)
+
+  if testname == "" then
+    vim.notify("no test found")
+	return false
+  end
+
+  M.last_testname = testname
+  M.last_testpath = testpath
+
+  local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
+  vim.notify(msg)
+  debug_test(testname, testpath)
+
+  return true
+end
+
+function M.debug_last_test()
+  local testname = M.last_testname
+  local testpath = M.last_testpath
+
+  if testname == "" then
+    vim.notify("no last run test found")
+    return false
+  end
+
+  local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
+  vim.notify(msg)
+  debug_test(testname, testpath)
+  return true
 end
 
 return M
