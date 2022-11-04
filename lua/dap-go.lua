@@ -60,40 +60,53 @@ local function setup_go_adapter(dap)
     local host = config.host or "127.0.0.1"
     local port = config.port or "38697"
     local addr = string.format("%s:%s", host, port)
-    local opts = {
-      stdio = {nil, stdout, stderr},
-      args = {"dap", "-l", addr},
-      detached = true
-    }
-    handle, pid_or_err = vim.loop.spawn("dlv", opts, function(code)
-      stdout:close()
-      stderr:close()
-      handle:close()
-      if code ~= 0 then
-        print('dlv exited with code', code)
-      end
-    end)
-    assert(handle, 'Error running dlv: ' .. tostring(pid_or_err))
-    stdout:read_start(function(err, chunk)
-      assert(not err, err)
-      if chunk then
-        vim.schedule(function()
-          require('dap.repl').append(chunk)
-        end)
-      end
-    end)
-    stderr:read_start(function(err, chunk)
-      assert(not err, err)
-      if chunk then
-        vim.schedule(function()
-          require('dap.repl').append(chunk)
-        end)
-      end
-    end)
+
+    if (config.request == "attach" and config.mode == "remote") then
+      -- Not starting delve server automatically in "Attach remote."
+      -- Will connect to delve server that is listening to [host]:[port] instead.
+      -- Users can use this with delve headless mode:
+      --
+      -- dlv debug -l 127.0.0.1:38697 --headless ./cmd/main.go
+      --
+      local msg = string.format("connecting to server at '%s'...", addr)
+      print(msg)
+    else
+      local opts = {
+        stdio = {nil, stdout, stderr},
+        args = {"dap", "-l", addr},
+        detached = true
+      }
+      handle, pid_or_err = vim.loop.spawn("dlv", opts, function(code)
+        stdout:close()
+        stderr:close()
+        handle:close()
+        if code ~= 0 then
+          print('dlv exited with code', code)
+        end
+      end)
+      assert(handle, 'Error running dlv: ' .. tostring(pid_or_err))
+      stdout:read_start(function(err, chunk)
+        assert(not err, err)
+        if chunk then
+          vim.schedule(function()
+            require('dap.repl').append(chunk)
+          end)
+        end
+      end)
+      stderr:read_start(function(err, chunk)
+        assert(not err, err)
+        if chunk then
+          vim.schedule(function()
+            require('dap.repl').append(chunk)
+          end)
+        end
+      end)
+    end
+
     -- Wait for delve to start
     vim.defer_fn(
       function()
-        callback({type = "server", host = "127.0.0.1", port = port})
+        callback({type = "server", host = host, port = port})
       end,
       100)
   end
@@ -126,6 +139,12 @@ local function setup_go_configuration(dap)
       mode = "local",
       request = "attach",
       processId = require('dap.utils').pick_process,
+    },
+    {
+      type = "go",
+      name = "Attach remote",
+      mode = "remote",
+      request = "attach",
     },
     {
       type = "go",
