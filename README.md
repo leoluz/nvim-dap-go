@@ -77,21 +77,19 @@ It is better to define a mapping to invoke this command. See the mapping section
 By default, delve will be started on 127.0.0.1 and a random free port but you can also config specific host and port if necessary.
 
 1. Setup the go adapter and add a configuration with specific host and port
-
-```lua
-require('dap-go').setup()
-table.insert(
-    require('dap').configurations.go,
-    {
-        type = "go",
-        name = "Debug on specific port",
-        request = "launch",
-        host = "127.0.0.1",
-        port = "38697",
-        program = "${file}",
-    })
-```
-
+    ```lua
+    require('dap-go').setup()
+    table.insert(
+        require('dap').configurations.go,
+        {
+            type = "go",
+            name = "Debug on specific port",
+            request = "launch",
+            host = "127.0.0.1",
+            port = "38697",
+            program = "${file}",
+        })
+    ```
 1. Call `:lua require('dap').continue()` to start debugging.
 1. Select the option `Debug on specific port`.
 
