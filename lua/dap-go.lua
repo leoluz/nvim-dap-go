@@ -73,7 +73,7 @@ local function setup_go_adapter(dap)
     local stderr = vim.loop.new_pipe(false)
     local handle
     local pid_or_err
-    local addr = get_addr(config.host,config.port)
+    local host, port, addr = get_addr(config.host,config.port)
 
     if (config.request == "attach" and config.mode == "remote") then
       -- Not starting delve server automatically in "Attach remote."
