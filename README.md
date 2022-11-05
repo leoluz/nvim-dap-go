@@ -44,8 +44,12 @@ lua require('dap-go').setup()
 
 ### Debugging individual tests
 
+
 To debug the closest method above the cursor use you can run:
 - `:lua require('dap-go').debug_test()` 
+
+Once a test was run, you can simply run it again from anywhere:
+- `:lua require('dap-go').debug_last_test()` 
 
 It is better to define a mapping to invoke this command. See the mapping section bellow.
 
@@ -58,6 +62,15 @@ It is better to define a mapping to invoke this command. See the mapping section
 ![Start Debug Session with Arguments](./images/image1.png "Start Debug Session with Arguments")
 ![Enter Arguments](./images/image2.png "Enter Arguments")
 ![Begin Debugging](./images/image3.png "Being Debugging")
+
+### Debugging with dlv in headless mode
+
+1. Start `dlv` in headless mode. You can specify subcommands and flags after `--`, e.g.,
+   ```
+   dlv debug -l 127.0.0.1:38697 --headless ./main.go -- subcommand --myflag=xyz
+   ```
+1. Call `:lua require('dap').continue()` to start debugging.
+1. Select the option `Attach remote`.
 
 ## Mappings
 

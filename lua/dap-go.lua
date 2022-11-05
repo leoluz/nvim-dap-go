@@ -1,7 +1,10 @@
 local query = require "vim.treesitter.query"
 local uv = vim.loop
 
-local M = {}
+local M = {
+	last_testname = "",
+	last_testpath = "",
+}
 
 local tests_query = [[
 (function_declaration
@@ -67,34 +70,57 @@ end
 local function setup_go_adapter(dap)
   dap.adapters.go = function(callback, config)
     local stdout = vim.loop.new_pipe(false)
+    local stderr = vim.loop.new_pipe(false)
     local handle
     local pid_or_err
-    local host,port,addr = get_addr(config.host,config.port)
-    local opts = {
-      stdio = {nil, stdout},
-      args = {"dap", "-l", addr},
-      detached = true
-    }
-    handle, pid_or_err = vim.loop.spawn("dlv", opts, function(code)
-      stdout:close()
-      handle:close()
-      if code ~= 0 then
-        print('dlv exited with code', code)
-      end
-    end)
-    assert(handle, 'Error running dlv: ' .. tostring(pid_or_err))
-    stdout:read_start(function(err, chunk)
-      assert(not err, err)
-      if chunk then
-        vim.schedule(function()
-          require('dap.repl').append(chunk)
-        end)
-      end
-    end)
+    local addr = get_addr(config.host,config.port)
+
+    if (config.request == "attach" and config.mode == "remote") then
+      -- Not starting delve server automatically in "Attach remote."
+      -- Will connect to delve server that is listening to [host]:[port] instead.
+      -- Users can use this with delve headless mode:
+      --
+      -- dlv debug -l 127.0.0.1:38697 --headless ./cmd/main.go
+      --
+      local msg = string.format("connecting to server at '%s'...", addr)
+      print(msg)
+    else
+      local opts = {
+        stdio = {nil, stdout, stderr},
+        args = {"dap", "-l", addr},
+        detached = true
+      }
+      handle, pid_or_err = vim.loop.spawn("dlv", opts, function(code)
+        stdout:close()
+        stderr:close()
+        handle:close()
+        if code ~= 0 then
+          print('dlv exited with code', code)
+        end
+      end)
+      assert(handle, 'Error running dlv: ' .. tostring(pid_or_err))
+      stdout:read_start(function(err, chunk)
+        assert(not err, err)
+        if chunk then
+          vim.schedule(function()
+            require('dap.repl').append(chunk)
+          end)
+        end
+      end)
+      stderr:read_start(function(err, chunk)
+        assert(not err, err)
+        if chunk then
+          vim.schedule(function()
+            require('dap.repl').append(chunk)
+          end)
+        end
+      end)
+    end
+
     -- Wait for delve to start
     vim.defer_fn(
       function()
-        callback({type = "server", host = "127.0.0.1", port = port})
+        callback({type = "server", host = host, port = port})
       end,
       100)
   end
@@ -130,6 +156,12 @@ local function setup_go_configuration(dap)
     },
     {
       type = "go",
+      name = "Attach remote",
+      mode = "remote",
+      request = "attach",
+    },
+    {
+      type = "go",
       name = "Debug test",
       request = "launch",
       mode = "test",
@@ -151,14 +183,14 @@ function M.setup()
   setup_go_configuration(dap)
 end
 
-local function debug_test(testname)
+local function debug_test(testname, testpath)
   local dap = load_module("dap")
   dap.run({
       type = "go",
       name = testname,
       request = "launch",
       mode = "test",
-      program = "./${relativeFileDirname}",
+      program = testpath,
       args = {"-test.run", testname},
   })
 end
@@ -176,7 +208,9 @@ local function get_closest_above_cursor(test_tree)
       end
     end
   end
-  if result.parent then
+  if result == nil then
+    return ""
+  elseif result.parent then
     return string.format("%s/%s", result.parent, result.name)
   else
     return result.name
@@ -264,9 +298,37 @@ end
 
 function M.debug_test()
   local testname = get_closest_test()
-  local msg = string.format("starting debug session '%s'...", testname)
-  print(msg)
-  debug_test(testname)
+  local relativeFileDirname = vim.fn.fnamemodify(vim.fn.expand("%:.:h"), ":r")
+  local testpath = string.format("./%s", relativeFileDirname)
+
+  if testname == "" then
+    vim.notify("no test found")
+	return false
+  end
+
+  M.last_testname = testname
+  M.last_testpath = testpath
+
+  local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
+  vim.notify(msg)
+  debug_test(testname, testpath)
+
+  return true
+end
+
+function M.debug_last_test()
+  local testname = M.last_testname
+  local testpath = M.last_testpath
+
+  if testname == "" then
+    vim.notify("no last run test found")
+    return false
+  end
+
+  local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
+  vim.notify(msg)
+  debug_test(testname, testpath)
+  return true
 end
 
 return M
