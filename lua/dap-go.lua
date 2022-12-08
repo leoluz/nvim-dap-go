@@ -162,6 +162,10 @@ local function setup_go_configuration(dap, configurations)
     }
   }
 
+  if configurations == nil then
+    return
+  end
+
   for _, config in ipairs(configurations) do
     table.insert(dap.configurations.go, config)
   end
