@@ -1,8 +1,8 @@
 local query = require "vim.treesitter.query"
 
 local M = {
-	last_testname = "",
-	last_testpath = "",
+  last_testname = "",
+  last_testpath = "",
 }
 
 local tests_query = [[
@@ -72,8 +72,8 @@ local function setup_go_adapter(dap)
       print(msg)
     else
       local opts = {
-        stdio = {nil, stdout, stderr},
-        args = {"dap", "-l", addr},
+        stdio = { nil, stdout, stderr },
+        args = { "dap", "-l", addr },
         detached = true
       }
       handle, pid_or_err = vim.loop.spawn("dlv", opts, function(code)
@@ -106,13 +106,13 @@ local function setup_go_adapter(dap)
     -- Wait for delve to start
     vim.defer_fn(
       function()
-        callback({type = "server", host = host, port = port})
+        callback({ type = "server", host = host, port = port })
       end,
       100)
   end
 end
 
-local function setup_go_configuration(dap)
+local function setup_go_configuration(dap, configurations)
   dap.configurations.go = {
     {
       type = "go",
@@ -161,23 +161,28 @@ local function setup_go_configuration(dap)
       program = "./${relativeFileDirname}",
     }
   }
+
+  for _, config in ipairs(configurations) do
+    table.insert(dap.configurations.go, config)
+  end
+
 end
 
-function M.setup()
+function M.setup(configurations)
   local dap = load_module("dap")
   setup_go_adapter(dap)
-  setup_go_configuration(dap)
+  setup_go_configuration(dap, configurations)
 end
 
 local function debug_test(testname, testpath)
   local dap = load_module("dap")
   dap.run({
-      type = "go",
-      name = testname,
-      request = "launch",
-      mode = "test",
-      program = testpath,
-      args = {"-test.run", testname},
+    type = "go",
+    name = testname,
+    request = "launch",
+    mode = "test",
+    program = testpath,
+    args = { "-test.run", testname },
   })
 end
 
@@ -203,7 +208,6 @@ local function get_closest_above_cursor(test_tree)
   end
 end
 
-
 local function is_parent(dest, source)
   if not (dest and source) then
     return false
@@ -227,7 +231,7 @@ end
 local function get_closest_test()
   local stop_row = vim.api.nvim_win_get_cursor(0)[1]
   local ft = vim.api.nvim_buf_get_option(0, 'filetype')
-  assert(ft == 'go', 'dap-go error: can only debug go files, not '..ft)
+  assert(ft == 'go', 'dap-go error: can only debug go files, not ' .. ft)
   local parser = vim.treesitter.get_parser(0)
   local root = (parser:parse()[1]):root()
 
@@ -289,7 +293,7 @@ function M.debug_test()
 
   if testname == "" then
     vim.notify("no test found")
-	return false
+    return false
   end
 
   M.last_testname = testname
