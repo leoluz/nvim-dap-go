@@ -1,8 +1,8 @@
 local query = require "vim.treesitter.query"
 
 local M = {
-	last_testname = "",
-	last_testpath = "",
+      last_testname = "",
+      last_testpath = "",
 }
 
 local tests_query = [[
