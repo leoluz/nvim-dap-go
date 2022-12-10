@@ -105,7 +105,7 @@ local function setup_go_adapter(dap)
 
     -- Wait for delve to start
     vim.defer_fn(function()
-        callback({ type = "server", host = host, port = port })
+      callback({ type = "server", host = host, port = port })
     end, 100)
   end
 end
@@ -200,7 +200,6 @@ local function get_closest_above_cursor(test_tree)
     return result.name
   end
 end
-
 
 local function is_parent(dest, source)
   if not (dest and source) then
