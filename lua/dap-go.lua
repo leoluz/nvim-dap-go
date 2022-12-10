@@ -74,7 +74,7 @@ local function setup_go_adapter(dap)
       local opts = {
         stdio = { nil, stdout, stderr },
         args = { "dap", "-l", addr },
-        detached = true
+        detached = true,
       }
       handle, pid_or_err = vim.loop.spawn("dlv", opts, function(code)
         stdout:close()
@@ -104,11 +104,9 @@ local function setup_go_adapter(dap)
     end
 
     -- Wait for delve to start
-    vim.defer_fn(
-      function()
-        callback({ type = "server", host = host, port = port })
-      end,
-      100)
+    vim.defer_fn(function()
+      callback({ type = "server", host = host, port = port })
+    end, 100)
   end
 end
 
@@ -235,7 +233,7 @@ end
 local function get_closest_test()
   local stop_row = vim.api.nvim_win_get_cursor(0)[1]
   local ft = vim.api.nvim_buf_get_option(0, 'filetype')
-  assert(ft == 'go', 'dap-go error: can only debug go files, not ' .. ft)
+  assert(ft == "go", "dap-go error: can only debug go files, not " .. ft)
   local parser = vim.treesitter.get_parser(0)
   local root = (parser:parse()[1]):root()
 
