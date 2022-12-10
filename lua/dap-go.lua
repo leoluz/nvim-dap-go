@@ -1,4 +1,4 @@
-local query = require "vim.treesitter.query"
+local query = require("vim.treesitter.query")
 
 local M = {
   last_testname = "",
@@ -28,7 +28,7 @@ local subtests_query = [[
 
 local function load_module(module_name)
   local ok, module = pcall(require, module_name)
-  assert(ok, string.format('dap-go dependency error: %s not installed', module_name))
+  assert(ok, string.format("dap-go dependency error: %s not installed", module_name))
   return module
 end
 
@@ -37,7 +37,7 @@ local function get_arguments()
   if co then
     return coroutine.create(function()
       local args = {}
-      vim.ui.input({ prompt = 'Args: ' }, function(input)
+      vim.ui.input({ prompt = "Args: " }, function(input)
         args = vim.split(input or "", " ")
       end)
       coroutine.resume(co, args)
@@ -61,7 +61,7 @@ local function setup_go_adapter(dap)
     local port = config.port or "38697"
     local addr = string.format("%s:%s", host, port)
 
-    if (config.request == "attach" and config.mode == "remote") then
+    if config.request == "attach" and config.mode == "remote" then
       -- Not starting delve server automatically in "Attach remote."
       -- Will connect to delve server that is listening to [host]:[port] instead.
       -- Users can use this with delve headless mode:
@@ -72,24 +72,24 @@ local function setup_go_adapter(dap)
       print(msg)
     else
       local opts = {
-        stdio = {nil, stdout, stderr},
-        args = {"dap", "-l", addr},
-        detached = true
+        stdio = { nil, stdout, stderr },
+        args = { "dap", "-l", addr },
+        detached = true,
       }
       handle, pid_or_err = vim.loop.spawn("dlv", opts, function(code)
         stdout:close()
         stderr:close()
         handle:close()
         if code ~= 0 then
-          print('dlv exited with code', code)
+          print("dlv exited with code", code)
         end
       end)
-      assert(handle, 'Error running dlv: ' .. tostring(pid_or_err))
+      assert(handle, "Error running dlv: " .. tostring(pid_or_err))
       stdout:read_start(function(err, chunk)
         assert(not err, err)
         if chunk then
           vim.schedule(function()
-            require('dap.repl').append(chunk)
+            require("dap.repl").append(chunk)
           end)
         end
       end)
@@ -97,18 +97,16 @@ local function setup_go_adapter(dap)
         assert(not err, err)
         if chunk then
           vim.schedule(function()
-            require('dap.repl').append(chunk)
+            require("dap.repl").append(chunk)
           end)
         end
       end)
     end
 
     -- Wait for delve to start
-    vim.defer_fn(
-      function()
+    vim.defer_fn(function()
         callback({type = "server", host = host, port = port})
-      end,
-      100)
+    end,100)
   end
 end
 
@@ -138,7 +136,7 @@ local function setup_go_configuration(dap)
       name = "Attach",
       mode = "local",
       request = "attach",
-      processId = require('dap.utils').pick_process,
+      processId = require("dap.utils").pick_process,
     },
     {
       type = "go",
@@ -159,7 +157,7 @@ local function setup_go_configuration(dap)
       request = "launch",
       mode = "test",
       program = "./${relativeFileDirname}",
-    }
+    },
   }
 end
 
@@ -172,12 +170,12 @@ end
 local function debug_test(testname, testpath)
   local dap = load_module("dap")
   dap.run({
-      type = "go",
-      name = testname,
-      request = "launch",
-      mode = "test",
-      program = testpath,
-      args = {"-test.run", testname},
+    type = "go",
+    name = testname,
+    request = "launch",
+    mode = "test",
+    program = testpath,
+    args = {"-test.run", testname},
   })
 end
 
@@ -226,15 +224,15 @@ end
 
 local function get_closest_test()
   local stop_row = vim.api.nvim_win_get_cursor(0)[1]
-  local ft = vim.api.nvim_buf_get_option(0, 'filetype')
-  assert(ft == 'go', 'dap-go error: can only debug go files, not '..ft)
+  local ft = vim.api.nvim_buf_get_option(0, "filetype")
+  assert(ft == "go", "dap-go error: can only debug go files, not "..ft)
   local parser = vim.treesitter.get_parser(0)
   local root = (parser:parse()[1]):root()
 
   local test_tree = {}
 
   local test_query = vim.treesitter.parse_query(ft, tests_query)
-  assert(test_query, 'dap-go error: could not parse test query')
+  assert(test_query, "dap-go error: could not parse test query")
   for _, match, _ in test_query:iter_matches(root, 0, 0, stop_row) do
     local test_match = {}
     for id, node in pairs(match) do
@@ -251,14 +249,14 @@ local function get_closest_test()
   end
 
   local subtest_query = vim.treesitter.parse_query(ft, subtests_query)
-  assert(subtest_query, 'dap-go error: could not parse test query')
+  assert(subtest_query, "dap-go error: could not parse test query")
   for _, match, _ in subtest_query:iter_matches(root, 0, 0, stop_row) do
     local test_match = {}
     for id, node in pairs(match) do
       local capture = subtest_query.captures[id]
       if capture == "testname" then
         local name = query.get_node_text(node, 0)
-        test_match.name = string.gsub(string.gsub(name, ' ', '_'), '"', '')
+        test_match.name = string.gsub(string.gsub(name, " ", "_"), '"', "")
       end
       if capture == "parent" then
         test_match.node = node
@@ -289,7 +287,7 @@ function M.debug_test()
 
   if testname == "" then
     vim.notify("no test found")
-	return false
+    return false
   end
 
   M.last_testname = testname

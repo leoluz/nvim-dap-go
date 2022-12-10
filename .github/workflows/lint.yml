@@ -5,20 +5,6 @@ on:
     branches:
       - master
 jobs:
-
-  luacheck:
-    name: Luacheck
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Prepare
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y luarocks
-          sudo luarocks install luacheck
-      - name: Lint
-        run: luacheck lua
-
   stylua:
     name: Stylua
     runs-on: ubuntu-20.04
