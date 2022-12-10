@@ -1,0 +1,30 @@
+name: Lint
+on:
+  pull_request: ~
+  push:
+    branches:
+      - master
+jobs:
+  stylua:
+    name: Stylua
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: JohnnyMorganz/stylua-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # CLI arguments
+          args: --color always --check lua/
+
+  super-linter:
+    name: Super Linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Lint Code Base
+        uses: github/super-linter/slim@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_JSCPD: false
+          VALIDATE_PYTHON_BLACK: false
