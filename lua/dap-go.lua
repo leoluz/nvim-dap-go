@@ -44,7 +44,7 @@ local function get_arguments()
     end)
   else
     local args = {}
-    vim.ui.input({ prompt = 'Args: ' }, function(input)
+    vim.ui.input({ prompt = "Args: " }, function(input)
       args = vim.split(input or "", " ")
     end)
     return args
@@ -105,8 +105,8 @@ local function setup_go_adapter(dap)
 
     -- Wait for delve to start
     vim.defer_fn(function()
-        callback({type = "server", host = host, port = port})
-    end,100)
+        callback({ type = "server", host = host, port = port })
+    end, 100)
   end
 end
 
@@ -175,7 +175,7 @@ local function debug_test(testname, testpath)
     request = "launch",
     mode = "test",
     program = testpath,
-    args = {"-test.run", testname},
+    args = { "-test.run", testname },
   })
 end
 
@@ -225,7 +225,7 @@ end
 local function get_closest_test()
   local stop_row = vim.api.nvim_win_get_cursor(0)[1]
   local ft = vim.api.nvim_buf_get_option(0, "filetype")
-  assert(ft == "go", "dap-go error: can only debug go files, not "..ft)
+  assert(ft == "go", "dap-go error: can only debug go files, not " .. ft)
   local parser = vim.treesitter.get_parser(0)
   local root = (parser:parse()[1]):root()
 
