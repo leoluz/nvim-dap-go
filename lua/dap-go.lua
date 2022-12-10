@@ -232,7 +232,7 @@ end
 
 local function get_closest_test()
   local stop_row = vim.api.nvim_win_get_cursor(0)[1]
-  local ft = vim.api.nvim_buf_get_option(0, 'filetype')
+  local ft = vim.api.nvim_buf_get_option(0, "filetype")
   assert(ft == "go", "dap-go error: can only debug go files, not " .. ft)
   local parser = vim.treesitter.get_parser(0)
   local root = (parser:parse()[1]):root()
