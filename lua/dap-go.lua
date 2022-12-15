@@ -115,7 +115,6 @@ local function setup_go_configuration(dap, configs)
       table.insert(dap.configurations.go, config)
     end
   end
-
 end
 
 function M.setup(configs)
