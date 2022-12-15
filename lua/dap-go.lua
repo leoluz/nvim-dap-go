@@ -53,11 +53,11 @@ end
 
 local function setup_delve_adapter(dap)
   dap.adapters.go = {
-    type = 'server',
-    port = '${port}',
+    type = "server",
+    port = "${port}",
     executable = {
-      command = 'dlv',
-      args = {'dap', '-l', '127.0.0.1:${port}'},
+      command = "dlv",
+      args = {"dap", "-l", "127.0.0.1:${port}"},
     }
   }
 end
