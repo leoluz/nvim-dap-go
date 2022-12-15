@@ -110,7 +110,7 @@ local function setup_go_adapter(dap)
   end
 end
 
-local function setup_go_configuration(dap)
+local function setup_go_configuration(dap, configurations)
   dap.configurations.go = {
     {
       type = "go",
@@ -159,12 +159,21 @@ local function setup_go_configuration(dap)
       program = "./${relativeFileDirname}",
     },
   }
+
+  if configurations == nil then
+    return
+  end
+
+  for _, config in ipairs(configurations) do
+    table.insert(dap.configurations.go, config)
+  end
+
 end
 
-function M.setup()
+function M.setup(configurations)
   local dap = load_module("dap")
   setup_go_adapter(dap)
-  setup_go_configuration(dap)
+  setup_go_configuration(dap, configurations)
 end
 
 local function debug_test(testname, testpath)
