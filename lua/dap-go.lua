@@ -110,7 +110,7 @@ local function setup_go_adapter(dap)
   end
 end
 
-local function setup_go_configuration(dap, configurations)
+local function setup_go_configuration(dap, configs)
   dap.configurations.go = {
     {
       type = "go",
@@ -140,12 +140,6 @@ local function setup_go_configuration(dap, configurations)
     },
     {
       type = "go",
-      name = "Attach remote",
-      mode = "remote",
-      request = "attach",
-    },
-    {
-      type = "go",
       name = "Debug test",
       request = "launch",
       mode = "test",
@@ -160,20 +154,22 @@ local function setup_go_configuration(dap, configurations)
     },
   }
 
-  if configurations == nil then
+  if configs == nil or configs.dap_configurations == nil then
     return
   end
 
-  for _, config in ipairs(configurations) do
-    table.insert(dap.configurations.go, config)
+  for _, config in ipairs(configs.dap_configurations) do
+    if config.type == "go" then
+      table.insert(dap.configurations.go, config)
+    end
   end
 
 end
 
-function M.setup(configurations)
+function M.setup(configs)
   local dap = load_module("dap")
   setup_go_adapter(dap)
-  setup_go_configuration(dap, configurations)
+  setup_go_configuration(dap, configs)
 end
 
 local function debug_test(testname, testpath)

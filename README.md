@@ -36,6 +36,31 @@ Call the setup function in your `init.vim` to register the go adapter and the co
 lua require('dap-go').setup()
 ```
 
+### Configuring
+
+It is possible to customize nvim-dap-go by passing a config table in the setup function.
+
+The example bellow shows all the possible configurations:
+
+```lua
+lua require('dap-go').setup {
+  -- Additional dap configurations can be added.
+  -- dap_configurations accepts a list of tables where each entry
+  -- represents a dap configuration. For more details do:
+  -- :help dap-configuration
+  dap_configurations = {
+    {
+      -- Must be "go" or it will be ignored by the plugin
+      type = "go",
+      name = "Attach remote",
+      mode = "remote",
+      request = "attach",
+    },
+  },
+}
+
+```
+
 ### Use nvim-dap as usual
 
 - Call `:lua require('dap').continue()` to start debugging.
@@ -65,12 +90,25 @@ It is better to define a mapping to invoke this command. See the mapping section
 
 ### Debugging with dlv in headless mode
 
+1. Register a new option to attach to a remote debugger:
+```lua
+lua require('dap-go').setup {
+  dap_configurations = {
+    {
+      type = "go",
+      name = "Attach remote",
+      mode = "remote",
+      request = "attach",
+    },
+  },
+}
+```
 1. Start `dlv` in headless mode. You can specify subcommands and flags after `--`, e.g.,
 ```sh
 dlv debug -l 127.0.0.1:38697 --headless ./main.go -- subcommand --myflag=xyz
 ```
 1. Call `:lua require('dap').continue()` to start debugging.
-1. Select the option `Attach remote`.
+1. Select the new registered option `Attach remote`.
 
 ## Mappings
 
