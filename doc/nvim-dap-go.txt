@@ -1,0 +1,158 @@
+========================================================================
+INTRODUCTION                                                  *dap-go*
+
+nvim-dap-go is an extension for nvim-dap (see |dap.txt|) providing
+configurations for launching go debugger (delve) and debugging
+individual tests. As such, it requires nvim-dap go to be installed.
+For more details see
+https://github.com/mfussenegger/nvim-dap#installation
+
+========================================================================
+CONTENTS                                                  *dap-go-toc*
+
+    1. Features .............................. |dap-go-features|
+    2. Configuration ......................... |dap-go-configuration|
+    3. Usage ................................. |dap-go-usage|
+    4. Debugging Individual Tests ............ |dap-go-debug-test|
+    5. Debugging With Command-Line Arguments . |dap-go-debug-cli-args|
+    6. Debugging With dlv in Headless Mode ... |dap-go-debug-headless|
+    7. Mappings .............................. |dap-go-mappings|
+
+========================================================================
+FEATURES                                             *dap-go-features*
+
+- Auto launch Delve. No configuration needed. You just have to have
+  `dlv` in your path.
+
+- Run just the closest test from the cursor in debug mode (uses
+  |treesitter|). See [debugging individual
+  tests](#debugging-individual-tests) section bellow for more details.
+
+- Configuration to attach nvim-dap and Delve into a running process
+  and start a debug session.
+
+- Configuration to start a debug session in the main function.
+
+- Configuration to run tests in a debug session.
+
+This plugin makes usage of treesitter to find the nearest test to
+debug. Make sure you have the Go treesitter parser installed. If using
+|nvim-treesitter| plugin you can install with `:TSInstall go`.
+
+========================================================================
+CONFIGURATION                                   *dap-go-configuration*
+
+Register the plugin by calling the setup function in your `init.vim`:
+
+>lua
+lua require('dap-go').setup()
+<
+
+This will apply all default configurations which is all you need for
+normal use-cases. It is possible to customize nvim-dap-go by passing a
+config table in the setup function.
+
+The example bellow shows all the possible configurations:
+
+>lua
+lua require('dap-go').setup {
+  -- Additional dap configurations can be added.
+  -- dap_configurations accepts a list of tables where each entry
+  -- represents a dap configuration. For more details see:
+  -- |dap-configuration|
+  dap_configurations = {
+    {
+      -- Must be "go" or it will be ignored by the plugin
+      type = "go",
+      name = "Attach remote",
+      mode = "remote",
+      request = "attach",
+    },
+  },
+  -- delve configurations
+  delve = {
+    -- time to wait for delve to initialize the debug session.
+    -- default to 20 seconds
+    initialize_timeout_sec = 20,
+    -- a string that defines the port to start delve debugger.
+    -- default to string "${port}" which instructs nvim-dap
+    -- to start the process in a random available port
+    port = "${port}"
+  },
+}
+<
+
+========================================================================
+USAGE                                                   *dap-go-usage*
+
+Once the plugin is registered, use nvim-dap as usual:
+
+- Call `:lua require('dap').continue()` to start debugging.
+- All pre-configured debuggers will be displayed for you to choose
+  from.
+- See |dap-mappings| and |dap-api|.
+
+-----------------------------------------------------------------------
+Debugging Individual Tests                        *dap-go-debug-test*
+
+To debug the closest method above the cursor use you can run:
+>lua
+:lua require('dap-go').debug_test()`
+<
+
+Once a test runs, you can simply run it again from anywhere:
+>lua
+:lua require('dap-go').debug_last_test()`
+<
+
+It is better to define a mapping to invoke this command. See the
+|dap-go-mappings| section bellow.
+
+-----------------------------------------------------------------------
+Debugging With Command-Line Arguments         *dap-go-debug-cli-args*
+
+    1. Select the option `Debug (Arguments)`
+    2. Enter each argument separated by a space (i.e. `option1 option2
+    option3`)
+    3. Press enter
+
+-----------------------------------------------------------------------
+Debugging With dlv in Headless Mode           *dap-go-debug-headless*
+
+    1. Register a new option to attach to a remote debugger:
+>lua
+lua require('dap-go').setup {
+  dap_configurations = {
+    {
+      type = "go",
+      name = "Attach remote",
+      mode = "remote",
+      request = "attach",
+    },
+  },
+}
+<
+
+    2. Start `dlv` in headless mode. You can specify subcommands and
+    flags after `--`, e.g.,
+
+>sh
+dlv debug -l 127.0.0.1:38697 --headless ./main.go -- subcommand --myflag=xyz
+<
+
+    3. Call `:lua require('dap').continue()` to start debugging.
+    4. Select the new registered option `Attach remote`.
+
+========================================================================
+MAPPINGS                                             *dap-go-mappings*
+
+nvim-dap-go doesn't provide any pre-configured keymaps. It does
+provide lua functions that you can easly use to define your own
+mappings.
+
+>lua
+local dapgo = require('dap-go')
+map("n", "<leader>y", dapgo.debug_test, 
+vim.keymap.set("n", "<leader>dt", dapgo.debug_test)
+vim.keymap.set("n", "<leader>dlt", dapgo.debug_last_test)
+<
