@@ -5,6 +5,13 @@ local M = {
   last_testpath = "",
 }
 
+local default_config = {
+  delve = {
+    initialize_timeout_sec = 20,
+    port = "${port}",
+  },
+}
+
 local tests_query = [[
 (function_declaration
   name: (identifier) @testname
@@ -51,13 +58,16 @@ local function get_arguments()
   end
 end
 
-local function setup_delve_adapter(dap)
+local function setup_delve_adapter(dap, config)
   dap.adapters.go = {
     type = "server",
-    port = "${port}",
+    port = config.delve.port,
     executable = {
       command = "dlv",
-      args = { "dap", "-l", "127.0.0.1:${port}" },
+      args = { "dap", "-l", "127.0.0.1:" .. config.delve.port },
+    },
+    options = {
+      initialize_timeout_sec = config.delve.initialize_timeout_sec,
     },
   }
 end
@@ -117,10 +127,11 @@ local function setup_go_configuration(dap, configs)
   end
 end
 
-function M.setup(configs)
+function M.setup(opts)
+  local config = vim.tbl_deep_extend("force", default_config, opts or {})
   local dap = load_module("dap")
-  setup_delve_adapter(dap)
-  setup_go_configuration(dap, configs)
+  setup_delve_adapter(dap, config)
+  setup_go_configuration(dap, config)
 end
 
 local function debug_test(testname, testpath)
