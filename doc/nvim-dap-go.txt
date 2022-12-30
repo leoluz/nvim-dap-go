@@ -156,3 +156,5 @@ mappings. You can do this by adding the lines bellow to your
     vim.keymap.set("n", "<leader>dt", dapgo.debug_test)
     vim.keymap.set("n", "<leader>dl", dapgo.debug_last_test)
 <
+
+vim:tw=78:et:ft=help:norl:
