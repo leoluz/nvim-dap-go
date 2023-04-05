@@ -161,10 +161,13 @@ local function get_closest_above_cursor(test_tree)
   end
   if result == nil then
     return ""
-  elseif result.parent then
-    return string.format("%s/%s", result.parent, result.name)
   else
-    return result.name
+    local name = result.name
+    while result.parent ~= nil do
+      result = result.parent
+      name = result.name .. "/" .. name
+    end
+    return name
   end
 end
 
@@ -238,7 +241,7 @@ local function get_closest_test()
   for _, parent in ipairs(test_tree) do
     for _, child in ipairs(test_tree) do
       if is_parent(parent.node, child.node) then
-        child.parent = parent.name
+        child.parent = parent
       end
     end
   end
