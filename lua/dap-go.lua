@@ -95,6 +95,13 @@ local function setup_go_configuration(dap, configs)
     },
     {
       type = "go",
+      name = "Debug Package (Arguments)",
+      request = "launch",
+      program = "${fileDirname}",
+      args = get_arguments,
+    },
+    {
+      type = "go",
       name = "Attach",
       mode = "local",
       request = "attach",
