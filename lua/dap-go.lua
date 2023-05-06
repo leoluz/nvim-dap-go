@@ -197,7 +197,7 @@ local function get_closest_test()
 
   local test_tree = {}
 
-  local test_query = vim.treesitter.parse_query(ft, tests_query)
+  local test_query = vim.treesitter.query.parse_query(ft, tests_query)
   assert(test_query, "dap-go error: could not parse test query")
   for _, match, _ in test_query:iter_matches(root, 0, 0, stop_row) do
     local test_match = {}
@@ -214,7 +214,7 @@ local function get_closest_test()
     table.insert(test_tree, test_match)
   end
 
-  local subtest_query = vim.treesitter.parse_query(ft, subtests_query)
+  local subtest_query = vim.treesitter.query.parse_query(ft, subtests_query)
   assert(subtest_query, "dap-go error: could not parse test query")
   for _, match, _ in subtest_query:iter_matches(root, 0, 0, stop_row) do
     local test_match = {}
