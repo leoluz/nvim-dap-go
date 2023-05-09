@@ -40,22 +40,13 @@ local function load_module(module_name)
 end
 
 local function get_arguments()
-  local co = coroutine.running()
-  if co then
-    return coroutine.create(function()
-      local args = {}
-      vim.ui.input({ prompt = "Args: " }, function(input)
-        args = vim.split(input or "", " ")
-      end)
-      coroutine.resume(co, args)
-    end)
-  else
+  return coroutine.create(function(dap_run_co)
     local args = {}
     vim.ui.input({ prompt = "Args: " }, function(input)
       args = vim.split(input or "", " ")
+      coroutine.resume(dap_run_co, args)
     end)
-    return args
-  end
+  end)
 end
 
 local function setup_delve_adapter(dap, config)
