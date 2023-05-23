@@ -1,5 +1,3 @@
-local query = require("vim.treesitter.query")
-
 local M = {
   last_testname = "",
   last_testpath = "",
@@ -10,6 +8,7 @@ local default_config = {
     path = "dlv",
     initialize_timeout_sec = 20,
     port = "${port}",
+    args = {},
   },
 }
 
@@ -60,11 +59,15 @@ local function get_arguments()
 end
 
 local function setup_delve_adapter(dap, config)
+  local args = { "dap", "-l", "127.0.0.1:" .. config.delve.port }
+  vim.list_extend(args, config.delve.args)
+
   dap.adapters.go = {
     type = "server",
     port = config.delve.port,
     executable = {
       command = config.delve.path,
+      args = args,
       args = { "dap", "-l", "127.0.0.1:" .. config.delve.port },
     },
     options = {
@@ -198,14 +201,14 @@ local function get_closest_test()
 
   local test_tree = {}
 
-  local test_query = vim.treesitter.parse_query(ft, tests_query)
+  local test_query = vim.treesitter.query.parse(ft, tests_query)
   assert(test_query, "dap-go error: could not parse test query")
   for _, match, _ in test_query:iter_matches(root, 0, 0, stop_row) do
     local test_match = {}
     for id, node in pairs(match) do
       local capture = test_query.captures[id]
       if capture == "testname" then
-        local name = query.get_node_text(node, 0)
+        local name = vim.treesitter.get_node_text(node, 0)
         test_match.name = name
       end
       if capture == "parent" then
@@ -215,14 +218,14 @@ local function get_closest_test()
     table.insert(test_tree, test_match)
   end
 
-  local subtest_query = vim.treesitter.parse_query(ft, subtests_query)
+  local subtest_query = vim.treesitter.query.parse(ft, subtests_query)
   assert(subtest_query, "dap-go error: could not parse test query")
   for _, match, _ in subtest_query:iter_matches(root, 0, 0, stop_row) do
     local test_match = {}
     for id, node in pairs(match) do
       local capture = subtest_query.captures[id]
       if capture == "testname" then
-        local name = query.get_node_text(node, 0)
+        local name = vim.treesitter.get_node_text(node, 0)
         test_match.name = string.gsub(string.gsub(name, " ", "_"), '"', "")
       end
       if capture == "parent" then

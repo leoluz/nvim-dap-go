@@ -81,6 +81,8 @@ The example bellow shows all the possible configurations:
         -- default to string "${port}" which instructs nvim-dap
         -- to start the process in a random available port
         port = "${port}"
+        -- additional args to pass to dlv
+        args = {}
       },
     }
 <
