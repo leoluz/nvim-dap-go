@@ -68,7 +68,6 @@ local function setup_delve_adapter(dap, config)
     executable = {
       command = config.delve.path,
       args = args,
-      args = { "dap", "-l", "127.0.0.1:" .. config.delve.port },
     },
     options = {
       initialize_timeout_sec = config.delve.initialize_timeout_sec,
