@@ -7,6 +7,7 @@ local default_config = {
   delve = {
     initialize_timeout_sec = 20,
     port = "${port}",
+    args = {},
   },
 }
 
@@ -57,12 +58,15 @@ local function get_arguments()
 end
 
 local function setup_delve_adapter(dap, config)
+  local args = { "dap", "-l", "127.0.0.1:" .. config.delve.port }
+  vim.list_extend(args, config.delve.args)
+
   dap.adapters.go = {
     type = "server",
     port = config.delve.port,
     executable = {
       command = "dlv",
-      args = { "dap", "-l", "127.0.0.1:" .. config.delve.port },
+      args = args,
     },
     options = {
       initialize_timeout_sec = config.delve.initialize_timeout_sec,
