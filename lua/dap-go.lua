@@ -5,6 +5,7 @@ local M = {
 
 local default_config = {
   delve = {
+    path = "dlv",
     initialize_timeout_sec = 20,
     port = "${port}",
     args = {},
@@ -65,7 +66,7 @@ local function setup_delve_adapter(dap, config)
     type = "server",
     port = config.delve.port,
     executable = {
-      command = "dlv",
+      command = config.delve.path,
       args = args,
     },
     options = {
