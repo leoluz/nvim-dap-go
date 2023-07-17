@@ -1,6 +1,7 @@
 local M = {
   last_testname = "",
   last_testpath = "",
+  test_buildflags = "",
 }
 
 local default_config = {
@@ -9,6 +10,7 @@ local default_config = {
     initialize_timeout_sec = 20,
     port = "${port}",
     args = {},
+    build_flags = "",
   },
 }
 
@@ -82,6 +84,7 @@ local function setup_go_configuration(dap, configs)
       name = "Debug",
       request = "launch",
       program = "${file}",
+      buildFlags = configs.delve.build_flags,
     },
     {
       type = "go",
@@ -89,12 +92,14 @@ local function setup_go_configuration(dap, configs)
       request = "launch",
       program = "${file}",
       args = get_arguments,
+      buildFlags = configs.delve.build_flags,
     },
     {
       type = "go",
       name = "Debug Package",
       request = "launch",
       program = "${fileDirname}",
+      buildFlags = configs.delve.build_flags,
     },
     {
       type = "go",
@@ -102,6 +107,7 @@ local function setup_go_configuration(dap, configs)
       mode = "local",
       request = "attach",
       processId = require("dap.utils").pick_process,
+      buildFlags = configs.delve.build_flags,
     },
     {
       type = "go",
@@ -109,6 +115,7 @@ local function setup_go_configuration(dap, configs)
       request = "launch",
       mode = "test",
       program = "${file}",
+      buildFlags = configs.delve.build_flags,
     },
     {
       type = "go",
@@ -116,6 +123,7 @@ local function setup_go_configuration(dap, configs)
       request = "launch",
       mode = "test",
       program = "./${relativeFileDirname}",
+      buildFlags = configs.delve.build_flags,
     },
   }
 
@@ -132,12 +140,13 @@ end
 
 function M.setup(opts)
   local config = vim.tbl_deep_extend("force", default_config, opts or {})
+  M.test_buildflags = config.delve.build_flags
   local dap = load_module("dap")
   setup_delve_adapter(dap, config)
   setup_go_configuration(dap, config)
 end
 
-local function debug_test(testname, testpath)
+local function debug_test(testname, testpath, build_flags)
   local dap = load_module("dap")
   dap.run({
     type = "go",
@@ -146,6 +155,7 @@ local function debug_test(testname, testpath)
     mode = "test",
     program = testpath,
     args = { "-test.run", testname },
+    buildFlags = build_flags,
   })
 end
 
@@ -264,7 +274,7 @@ function M.debug_test()
 
   local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
   vim.notify(msg)
-  debug_test(testname, testpath)
+  debug_test(testname, testpath, M.test_buildflags)
 
   return true
 end
@@ -280,7 +290,8 @@ function M.debug_last_test()
 
   local msg = string.format("starting debug session '%s : %s'...", testpath, testname)
   vim.notify(msg)
-  debug_test(testname, testpath)
+  debug_test(testname, testpath, M.test_buildflags)
+
   return true
 end
 
