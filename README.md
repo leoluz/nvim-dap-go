@@ -12,7 +12,7 @@ An extension for [nvim-dap][1] providing configurations for launching go debugge
 
 ## Pre-reqs
 
-- Neovim >= 0.5
+- Neovim >= 0.9.0
 - [nvim-dap][1]
 - [delve][2] >= 1.7.0
 
