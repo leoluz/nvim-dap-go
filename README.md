@@ -70,7 +70,7 @@ lua require('dap-go').setup {
     -- to start the process in a random available port
     port = "${port}",
     -- additional args to pass to dlv
-    args = {}
+    args = {},
     -- the build flags that are passed to delve.
     -- defaults to empty string, but can be used to provide flags
     -- such as "-tags=unit" to make sure the test suite is
