@@ -60,6 +60,17 @@ local function get_arguments()
   end
 end
 
+local function filtered_pick_process()
+  local opts = {}
+  vim.ui.input(
+    { prompt = "Search by process name (lua pattern), or hit enter to select from the process list: " },
+    function(input)
+      opts["filter"] = input or ""
+    end
+  )
+  return require("dap.utils").pick_process(opts)
+end
+
 local function setup_delve_adapter(dap, config)
   local args = { "dap", "-l", "127.0.0.1:" .. config.delve.port }
   vim.list_extend(args, config.delve.args)
@@ -106,7 +117,7 @@ local function setup_go_configuration(dap, configs)
       name = "Attach",
       mode = "local",
       request = "attach",
-      processId = require("dap.utils").pick_process,
+      processId = filtered_pick_process,
       buildFlags = configs.delve.build_flags,
     },
     {
