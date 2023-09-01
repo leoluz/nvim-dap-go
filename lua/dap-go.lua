@@ -45,18 +45,13 @@ local function get_arguments()
   local co = coroutine.running()
   if co then
     return coroutine.create(function()
-      local args = {}
-      vim.ui.input({ prompt = "Args: " }, function(input)
-        args = vim.split(input or "", " ")
-      end)
+      local input = vim.fn.input("Args: ")
+      local args = vim.split(input or "", " ")
       coroutine.resume(co, args)
     end)
   else
-    local args = {}
-    vim.ui.input({ prompt = "Args: " }, function(input)
-      args = vim.split(input or "", " ")
-    end)
-    return args
+    local input = vim.fn.input("Args: ")
+    return vim.split(input or "", " ")
   end
 end
 
