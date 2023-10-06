@@ -1,4 +1,4 @@
-local ts = require "dap-go-ts"
+local ts = require("dap-go-ts")
 
 local M = {
   last_testname = "",

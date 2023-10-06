@@ -77,15 +77,15 @@ end
 
 local function get_closest_test()
   local stop_row = vim.api.nvim_win_get_cursor(0)[1]
-  local ft = vim.api.nvim_buf_get_option(0, 'filetype')
-  assert(ft == 'go', 'can only find test in go files, not ' .. ft)
+  local ft = vim.api.nvim_buf_get_option(0, "filetype")
+  assert(ft == "go", "can only find test in go files, not " .. ft)
   local parser = vim.treesitter.get_parser(0)
   local root = (parser:parse()[1]):root()
 
   local test_tree = {}
 
   local test_query = vim.treesitter.query.parse(ft, tests_query)
-  assert(test_query, 'could not parse test query')
+  assert(test_query, "could not parse test query")
   for _, match, _ in test_query:iter_matches(root, 0, 0, stop_row) do
     local test_match = {}
     for id, node in pairs(match) do
@@ -102,14 +102,14 @@ local function get_closest_test()
   end
 
   local subtest_query = vim.treesitter.query.parse(ft, subtests_query)
-  assert(subtest_query, 'could not parse test query')
+  assert(subtest_query, "could not parse test query")
   for _, match, _ in subtest_query:iter_matches(root, 0, 0, stop_row) do
     local test_match = {}
     for id, node in pairs(match) do
       local capture = subtest_query.captures[id]
       if capture == "testname" then
         local name = vim.treesitter.get_node_text(node, 0)
-        test_match.name = string.gsub(string.gsub(name, ' ', '_'), '"', '')
+        test_match.name = string.gsub(string.gsub(name, " ", "_"), '"', "")
       end
       if capture == "parent" then
         test_match.node = node
