@@ -134,7 +134,7 @@ local function get_closest_test()
 end
 
 local function get_package_name()
-  local test_dir = vim.fn.fnamemodify(vim.fn.expand("%:.:h"), ":r");
+  local test_dir = vim.fn.fnamemodify(vim.fn.expand("%:.:h"), ":r")
   return "./" .. test_dir
 end
 
