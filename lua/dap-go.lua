@@ -145,7 +145,7 @@ end
 function M.debug_test()
   local test = ts.closest_test()
 
-  if test.name == "" then
+  if test.name == "" or test.name == nil then
     vim.notify("no test found")
     return false
   end
