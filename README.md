@@ -78,6 +78,10 @@ lua require('dap-go').setup {
     -- passing build flags using args is ineffective, as those are
     -- ignored by delve in dap mode.
     build_flags = "",
+    -- whether the dlv process to be created detached or not. there is
+    -- an issue on Windows where this needs to be set to false
+    -- otherwise the dlv server creation will fail.
+    detached = true
   },
 }
 ```
