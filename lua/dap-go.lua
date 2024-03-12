@@ -7,6 +7,7 @@ local M = {
 
   hostname = "localhost",
   port = "40000",
+  remote_path = "/",
 }
 
 local default_config = {
@@ -31,6 +32,18 @@ local function get_arguments()
     vim.ui.input({ prompt = "Args: " }, function(input)
       args = vim.split(input or "", " ")
       coroutine.resume(dap_run_co, args)
+    end)
+  end)
+end
+
+local function get_remote_path()
+  return coroutine.create(function(dap_run_co)
+    local args = {}
+    vim.ui.input({ prompt = "Remote path: ", default = M.remote_path }, function(input)
+      if input ~= nil then
+        M.remote_path = input
+        coroutine.resume(dap_run_co, M.remote_path)
+      end
     end)
   end)
 end
@@ -126,6 +139,9 @@ local function setup_go_configuration(dap, configs)
       mode = "remote",
       request = "attach",
       connect = get_dlv_uri,
+      substitutePath = {
+        { from = "${workspaceFolder}", to = get_remote_path },
+      },
       buildFlags = configs.delve.build_flags,
     },
     {
