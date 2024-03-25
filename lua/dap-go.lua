@@ -13,6 +13,7 @@ local default_config = {
     port = "${port}",
     args = {},
     build_flags = "",
+    detached = true,
   },
 }
 
@@ -53,6 +54,7 @@ local function setup_delve_adapter(dap, config)
     executable = {
       command = config.delve.path,
       args = args,
+      detached = config.delve.detached,
     },
     options = {
       initialize_timeout_sec = config.delve.initialize_timeout_sec,
