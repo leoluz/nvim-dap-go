@@ -66,7 +66,7 @@ local function setup_delve_adapter(dap, config)
   local args = { "dap", "-l", "127.0.0.1:" .. config.delve.port }
   vim.list_extend(args, config.delve.args)
 
-  dap.adapters.go = {
+  local delve_config = {
     type = "server",
     port = config.delve.port,
     executable = {
@@ -79,10 +79,23 @@ local function setup_delve_adapter(dap, config)
       initialize_timeout_sec = config.delve.initialize_timeout_sec,
     },
   }
+
+  dap.adapters.go = function(callback, client_config)
+    if client_config.mode ~= "remote" then
+      callback(delve_config)
+      return
+    end
+
+    local listener_addr = client_config.host .. ":" .. client_config.port
+    delve_config.port = client_config.port
+    delve_config.executable.args = { "dap", "-l", listener_addr }
+
+    callback(delve_config)
+  end
 end
 
 local function setup_go_configuration(dap, configs)
-  dap.configurations.go = {
+  local common_debug_configs = {
     {
       type = "go",
       name = "Debug",
@@ -138,6 +151,10 @@ local function setup_go_configuration(dap, configs)
       buildFlags = configs.delve.build_flags,
     },
   }
+
+  for _, config in ipairs(common_debug_configs) do
+    table.insert(dap.configurations.go, config)
+  end
 
   if configs == nil or configs.dap_configurations == nil then
     return
