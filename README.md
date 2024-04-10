@@ -202,7 +202,7 @@ nmap <silent> <leader>td :lua require('dap-go').debug_test()<CR>
 ## VSCode launch config
 
 Defining the Go debug configurations for all your projects inside your Neovim configuration can be cumbersome and quite strict.
-For more flexibility, `nvim-dap` supports the use of the VSCode launch configurations. To use that feature in combination with the pre-defined `nvim-dap-go` configurations (the ones for launching debug sessions in tests for instance), load the VSCode configurations **BEFORE** calling the `setup()` function of `nvim-dap-go`:
+For more flexibility, `nvim-dap` supports the use of the VSCode launch configurations. To use that feature in combination with the predefined `nvim-dap-go` configurations (the ones for launching debug sessions in tests for instance), load the VSCode configurations **BEFORE** calling the `setup()` function of `nvim-dap-go`:
 
 ```lua
 require("dap.ext.vscode").load_launchjs()
