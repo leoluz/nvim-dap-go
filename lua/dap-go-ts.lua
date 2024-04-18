@@ -155,7 +155,7 @@ M.closest_test = function()
 end
 
 M.get_root_dir = function()
-  local id, client = next(vim.lsp.buf_get_clients())
+  local id, client = next(vim.lsp.get_active_client())
   if id == nil then
     error({ error_msg = "lsp client not attached" })
   end
