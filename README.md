@@ -82,6 +82,9 @@ lua require('dap-go').setup {
     -- an issue on Windows where this needs to be set to false
     -- otherwise the dlv server creation will fail.
     detached = true
+    -- the current working directory to run dlv from, if other than
+    -- the current working directory.
+    cwd = nil,
   },
 }
 ```
