@@ -17,7 +17,10 @@ local subtests_query = [[
     field: (field_identifier) @run)
   arguments: (argument_list
     (interpreted_string_literal) @testname
-    (func_literal))
+    [
+     (func_literal)
+     (identifier)
+    ])
   (#eq? @run "Run")) @parent
 ]]
 
