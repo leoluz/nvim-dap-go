@@ -55,6 +55,7 @@ local function setup_delve_adapter(dap, config)
       command = config.delve.path,
       args = args,
       detached = config.delve.detached,
+      cwd = config.delve.cwd,
     },
     options = {
       initialize_timeout_sec = config.delve.initialize_timeout_sec,
