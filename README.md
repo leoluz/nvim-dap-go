@@ -81,7 +81,7 @@ lua require('dap-go').setup {
     -- whether the dlv process to be created detached or not. there is
     -- an issue on Windows where this needs to be set to false
     -- otherwise the dlv server creation will fail.
-    detached = vim.fn.has 'win32' == 0
+    detached = vim.fn.has("win32") == 0,
     -- the current working directory to run dlv from, if other than
     -- the current working directory.
     cwd = nil,
