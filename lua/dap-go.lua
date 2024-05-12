@@ -38,7 +38,6 @@ end
 
 local function get_remote_path()
   return coroutine.create(function(dap_run_co)
-    local args = {}
     vim.ui.input({ prompt = "Remote path: ", default = M.remote_path }, function(input)
       if input ~= nil then
         M.remote_path = input
