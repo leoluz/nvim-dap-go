@@ -102,6 +102,7 @@ lua require('dap-go').setup {
 
 ### Debugging individual tests
 
+
 To debug the closest method above the cursor use you can run:
 - `:lua require('dap-go').debug_test()`
 
