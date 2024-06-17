@@ -86,6 +86,11 @@ lua require('dap-go').setup {
     -- the current working directory.
     cwd = nil,
   },
+  -- options related to running closest test
+  tests = {
+    -- enables verbosity when running the test.
+    verbose = false,
+  },
 }
 ```
 
