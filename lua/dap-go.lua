@@ -48,19 +48,32 @@ local function setup_delve_adapter(dap, config)
   local args = { "dap", "-l", "127.0.0.1:" .. config.delve.port }
   vim.list_extend(args, config.delve.args)
 
-  dap.adapters.go = {
-    type = "server",
-    port = config.delve.port,
-    executable = {
-      command = config.delve.path,
-      args = args,
-      detached = config.delve.detached,
-      cwd = config.delve.cwd,
-    },
-    options = {
-      initialize_timeout_sec = config.delve.initialize_timeout_sec,
-    },
-  }
+  local delve = config.delve
+  dap.adapters.go = function(cb, cfg)
+    local adapter = {
+      type = "server",
+      port = (cfg.port or delve.port),
+      options = {
+        initialize_timeout_sec = delve.initialize_timeout_sec,
+      },
+    }
+
+    assert(adapter.port, "`port` is required for go configuration")
+    assert(
+      cfg.request ~= "attach" or adapter.port ~= "{port}",
+      "`port` cannot be randomly assigned when using `attach` configuration"
+    )
+
+    if cfg.request == "launch" then
+      adapter.executable = {
+        command = delve.path,
+        args = args,
+        detached = delve.detached,
+        cwd = delve.cwd,
+      }
+    end
+    cb(adapter)
+  end
 end
 
 local function setup_go_configuration(dap, configs)
