@@ -4,6 +4,10 @@ local M = {
   last_testname = "",
   last_testpath = "",
   test_buildflags = "",
+
+  hostname = "localhost",
+  port = "40000",
+  remote_path = "/",
 }
 
 local default_config = {
@@ -31,6 +35,42 @@ local function get_arguments()
     vim.ui.input({ prompt = "Args: " }, function(input)
       args = vim.split(input or "", " ")
       coroutine.resume(dap_run_co, args)
+    end)
+  end)
+end
+
+local function get_remote_path()
+  return coroutine.create(function(dap_run_co)
+    vim.ui.input({ prompt = "Remote path: ", default = M.remote_path }, function(input)
+      if input ~= nil then
+        M.remote_path = input
+        coroutine.resume(dap_run_co, M.remote_path)
+      end
+    end)
+  end)
+end
+
+local function get_dlv_uri()
+  return coroutine.create(function(dap_run_co)
+    local args = {}
+    local connect = {
+      hostname = M.hostname,
+      port = M.port,
+    }
+
+    vim.ui.input({ prompt = "Delve Uri: ", default = M.hostname .. ":" .. M.port }, function(input)
+      args = vim.split(input or "", ":")
+
+      if args[1] ~= nil and args[2] ~= nil then
+        M.hostname = args[1]
+        connect["hostname"] = args[1]
+        connect["port"] = args[2]
+
+        local dap = load_module("dap")
+        dap.adapters.go["port"] = args[2] or dap.adapters.go["port"]
+        M.port = args[2]
+        coroutine.resume(dap_run_co, connect)
+      end
     end)
   end)
 end
@@ -95,6 +135,17 @@ local function setup_go_configuration(dap, configs)
       mode = "local",
       request = "attach",
       processId = filtered_pick_process,
+      buildFlags = configs.delve.build_flags,
+    },
+    {
+      type = "go",
+      name = "Attach remote",
+      mode = "remote",
+      request = "attach",
+      connect = get_dlv_uri,
+      substitutePath = {
+        { from = "${workspaceFolder}", to = get_remote_path },
+      },
       buildFlags = configs.delve.build_flags,
     },
     {
