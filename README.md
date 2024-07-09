@@ -86,6 +86,19 @@ lua require('dap-go').setup {
     -- the current working directory.
     cwd = nil,
   },
+
+  -- When debugging tests, nvim-dap-go will use a custom launch configuration
+  -- not included in `dap_configurations`.
+  -- You can use the following option to add extra configuration arguments
+  -- for when running tests in debug mode.
+  -- This table is merged with the default debug launch configuration, 
+  -- overriding any existing values.
+  extra_debug_opts = {
+    env = {
+      MY_ENV_VAR = "value",
+    },
+    cwd = "${workspaceFolder}",
+  }
 }
 ```
 
@@ -97,11 +110,12 @@ lua require('dap-go').setup {
 
 ### Debugging individual tests
 
-
 To debug the closest method above the cursor use you can run:
+
 - `:lua require('dap-go').debug_test()`
 
 Once a test was run, you can simply run it again from anywhere:
+
 - `:lua require('dap-go').debug_last_test()`
 
 It is better to define a mapping to invoke this command. See the mapping section below.
@@ -119,6 +133,7 @@ It is better to define a mapping to invoke this command. See the mapping section
 ### Debugging with dlv in headless mode
 
 1. Register a new option to attach to a remote debugger:
+
 ```lua
 lua require('dap-go').setup {
   dap_configurations = {
@@ -131,10 +146,13 @@ lua require('dap-go').setup {
   },
 }
 ```
+
 1. Start `dlv` in headless mode. You can specify subcommands and flags after `--`, e.g.,
+
 ```sh
 dlv debug -l 127.0.0.1:38697 --headless ./main.go -- subcommand --myflag=xyz
 ```
+
 1. Call `:lua require('dap').continue()` to start debugging.
 1. Select the new registered option `Attach remote`.
 
