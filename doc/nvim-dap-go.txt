@@ -96,6 +96,11 @@ The example bellow shows all the possible configurations:
         -- otherwise the dlv server creation will fail.
         detached = true
       },
+      -- options related to running closest test
+      tests = {
+        -- enables verbosity when running the test.
+        verbose = false,
+      },
     }
 <
 
