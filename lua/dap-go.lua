@@ -147,7 +147,7 @@ local function setup_go_configuration(dap, configs)
     if config.type == "go" then
       table.insert(dap.configurations.go, config)
     end
-  end_delve_adapter(dap, internal_global_confi
+  end
 end
 
 function M.setup(opts)
