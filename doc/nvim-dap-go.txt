@@ -15,8 +15,9 @@ CONTENTS                                                  *dap-go-toc*
     3. Usage ................................. |dap-go-usage|
     4. Debugging Individual Tests ............ |dap-go-debug-test|
     5. Debugging With Command-Line Arguments . |dap-go-debug-cli-args|
-    6. Debugging With dlv in Headless Mode ... |dap-go-debug-headless|
-    7. Mappings .............................. |dap-go-mappings|
+    6. Debugging With Build Flags ............ |dap-go-debug-cli-args|
+    7. Debugging With dlv in Headless Mode ... |dap-go-debug-headless|
+    8. Mappings .............................. |dap-go-mappings|
 
 ========================================================================
 FEATURES                                             *dap-go-features*
@@ -131,6 +132,48 @@ Debugging With Command-Line Arguments         *dap-go-debug-cli-args*
     2. Enter each argument separated by a space (i.e. `option1 option2
     option3`).
     3. Press enter.
+
+-----------------------------------------------------------------------
+Debugging With Build Flags                  *dap-go-debug-build-flags*
+
+    1. Register a new option to debug with build flags:
+>lua
+    require('dap-go').setup {
+      dap_configurations = {
+        {
+            type = "go",
+            name = "Debug (Build Flags)",
+            request = "launch",
+            program = "${file}",
+            buildFlags = require("dap-go").get_build_flags,
+        },
+      },
+    })
+<
+
+    2. To prompt for both build flags and arguments register the 
+    following:
+>lua
+    require("dap-go").setup({
+        dap_configurations = {
+            {
+                type = "go",
+                name = "Debug (Build Flags & Arguments)",
+                request = "launch",
+                program = "${file}",
+                args = require("dap-go").get_arguments,
+                buildFlags = require("dap-go").get_build_flags,
+            },
+        }
+    })
+<
+
+    3. To create a custom debugging configuration that requires an 
+    interactive prompt the following functions can be attached to 
+    the args and buildFlags fields of dap_configurations.
+    
+    `require('dap-go').get_arguments`
+    `require('dap-go').get_buid_flags`
 
 -----------------------------------------------------------------------
 Debugging With dlv in Headless Mode           *dap-go-debug-headless*

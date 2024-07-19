@@ -77,10 +77,12 @@ lua require('dap-go').setup {
     -- compiled during debugging, for example.
     -- passing build flags using args is ineffective, as those are
     -- ignored by delve in dap mode.
-    build_flags = "",
+    -- avaliable ui interactive function to prompt for arguments get_arguments
+    build_flags = {},
     -- whether the dlv process to be created detached or not. there is
     -- an issue on Windows where this needs to be set to false
     -- otherwise the dlv server creation will fail.
+    -- avaliable ui interactive function to prompt for build flags: get_build_flags
     detached = vim.fn.has("win32") == 0,
     -- the current working directory to run dlv from, if other than
     -- the current working directory.
@@ -97,11 +99,12 @@ lua require('dap-go').setup {
 
 ### Debugging individual tests
 
-
 To debug the closest method above the cursor use you can run:
+
 - `:lua require('dap-go').debug_test()`
 
 Once a test was run, you can simply run it again from anywhere:
+
 - `:lua require('dap-go').debug_last_test()`
 
 It is better to define a mapping to invoke this command. See the mapping section below.
@@ -116,9 +119,50 @@ It is better to define a mapping to invoke this command. See the mapping section
 ![Enter Arguments](./images/image2.png "Enter Arguments")
 ![Begin Debugging](./images/image3.png "Being Debugging")
 
+### Debugging with build flags
+
+1. Register a new option to debug with build flags:
+
+```lua
+require('dap-go').setup {
+  dap_configurations = {
+    {
+      type = "go",
+      name = "Debug (Build Flags)",
+      request = "launch",
+      program = "${file}",
+      buildFlags = require("dap-go").get_build_flags,
+    },
+  },
+})
+```
+
+2. To prompt for both build flags and arguments register the following:
+
+```lua
+require("dap-go").setup({
+    dap_configurations = {
+        {
+            type = "go",
+            name = "Debug (Build Flags & Arguments)",
+            request = "launch",
+            program = "${file}",
+            args = require("dap-go").get_arguments,
+            buildFlags = require("dap-go").get_build_flags,
+        },
+    }
+})
+```
+
+3. To create a custom debugging configuration that requires an interactive prompt the following functions can be
+   attached to the args and buildFlags fields of dap_configurations.
+   - `require('dap-go').get_arguments`
+   - `require('dap-go').get_buid_flags`
+
 ### Debugging with dlv in headless mode
 
 1. Register a new option to attach to a remote debugger:
+
 ```lua
 lua require('dap-go').setup {
   dap_configurations = {
@@ -131,10 +175,13 @@ lua require('dap-go').setup {
   },
 }
 ```
+
 1. Start `dlv` in headless mode. You can specify subcommands and flags after `--`, e.g.,
+
 ```sh
 dlv debug -l 127.0.0.1:38697 --headless ./main.go -- subcommand --myflag=xyz
 ```
+
 1. Call `:lua require('dap').continue()` to start debugging.
 1. Select the new registered option `Attach remote`.
 

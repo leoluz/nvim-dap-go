@@ -19,6 +19,8 @@ local default_config = {
   },
 }
 
+local internal_global_config = {}
+
 local function load_module(module_name)
   local ok, module = pcall(require, module_name)
   assert(ok, string.format("dap-go dependency error: %s not installed", module_name))
@@ -31,6 +33,16 @@ local function get_arguments()
     vim.ui.input({ prompt = "Args: " }, function(input)
       args = vim.split(input or "", " ")
       coroutine.resume(dap_run_co, args)
+    end)
+  end)
+end
+
+local function get_build_flags(config)
+  return coroutine.create(function(dap_run_co)
+    local build_flags = config.build_flags
+    vim.ui.input({ prompt = "Build Flags: " }, function(input)
+      build_flags = vim.split(input or "", " ")
+      coroutine.resume(dap_run_co, build_flags)
     end)
   end)
 end
@@ -84,6 +96,14 @@ local function setup_go_configuration(dap, configs)
     },
     {
       type = "go",
+      name = "Debug (Arguments & Build Flags)",
+      request = "launch",
+      program = "${file}",
+      args = get_arguments,
+      buildFlags = get_build_flags,
+    },
+    {
+      type = "go",
       name = "Debug Package",
       request = "launch",
       program = "${fileDirname}",
@@ -127,11 +147,11 @@ local function setup_go_configuration(dap, configs)
 end
 
 function M.setup(opts)
-  local config = vim.tbl_deep_extend("force", default_config, opts or {})
-  M.test_buildflags = config.delve.build_flags
+  internal_global_config = vim.tbl_deep_extend("force", default_config, opts or {})
+  M.test_buildflags = internal_global_config.delve.build_flags
   local dap = load_module("dap")
-  setup_delve_adapter(dap, config)
-  setup_go_configuration(dap, config)
+  setup_delve_adapter(dap, internal_global_config)
+  setup_go_configuration(dap, internal_global_config)
 end
 
 local function debug_test(testname, testpath, build_flags)
@@ -179,6 +199,14 @@ function M.debug_last_test()
   debug_test(testname, testpath, M.test_buildflags)
 
   return true
+end
+
+function M.get_build_flags()
+  return get_build_flags(internal_global_config)
+end
+
+function M.get_arguments()
+  return get_arguments()
 end
 
 return M
