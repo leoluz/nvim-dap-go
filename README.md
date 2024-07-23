@@ -202,12 +202,7 @@ nmap <silent> <leader>td :lua require('dap-go').debug_test()<CR>
 ## VSCode launch config
 
 Defining the Go debug configurations for all your projects inside your Neovim configuration can be cumbersome and quite strict.
-For more flexibility, `nvim-dap` supports the use of the VSCode launch configurations. To use that feature in combination with the predefined `nvim-dap-go` configurations (the ones for launching debug sessions in tests for instance), load the VSCode configurations **BEFORE** calling the `setup()` function of `nvim-dap-go`:
-
-```lua
-require("dap.ext.vscode").load_launchjs()
-require("dap-go").setup()
-```
+For more flexibility, `nvim-dap` supports the use of the VSCode launch configurations.
 
 That allows for example to set the Delve port dynamically when you run a debug session. If you create this file in your project (`[root_project]/.vscode/launch.json`):
 
@@ -233,6 +228,7 @@ That allows for example to set the Delve port dynamically when you run a debug s
 ```
 
 A debug session `Remote debug API server` will appear in the choices, and the Delve port will be dynamically set to `4444`.
+The current version of nvim-dap always loads the file if it exists.
 
 Please see `:h dap-launch.json` for more information.
 

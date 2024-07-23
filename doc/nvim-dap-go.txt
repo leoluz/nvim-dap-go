@@ -217,14 +217,7 @@ Debugging With dlv in Headless Mode           *dap-go-debug-headless*
 -----------------------------------------------------------------------
 VSCode launch config                           *dap-go-vscode-launch
 
-    1. In your neovim configuration, load the VSCode extension BEFORE
-    calling the `setup()` function:
->lua
-    require("dap.ext.vscode").load_launchjs()
-    require("dap-go").setup()
-<
-
-    2. Create in your Go project a VSCode launch config file (by
+    1. Create in your Go project a VSCode launch config file (by
     default its path must be `.vscode/launch.json` relative to your
     project's root directory):
 >json
@@ -248,7 +241,7 @@ VSCode launch config                           *dap-go-vscode-launch
     }
 <
 
-    3. A debug session `Remote debug API server` will appear in the choices,
+    2. A debug session `Remote debug API server` will appear in the choices,
     and the Delve port will be dynamically set to `4444`.
 
 Please see `:h dap-launch.json` for more information.
