@@ -81,25 +81,17 @@ local function setup_delve_adapter(dap, config)
   }
 
   dap.adapters.go = function(callback, client_config)
-    local required_fields = {
-      "mode",
-      "port",
-      "host",
-    }
-
-    for _, field in ipairs(required_fields) do
-      if client_config[field] == nil then
-        vim.notify(string.format("missing DAP config key %s", field), vim.log.levels.ERROR)
-        return
-      end
-    end
-
-    if client_config.mode ~= "remote" then
+    if client_config.port == nil then
       callback(delve_config)
       return
     end
 
-    local listener_addr = client_config.host .. ":" .. client_config.port
+    local host = client_config.host
+    if host == nil then
+      host = "127.0.0.1"
+    end
+
+    local listener_addr = host .. ":" .. client_config.port
     delve_config.port = client_config.port
     delve_config.executable.args = { "dap", "-l", listener_addr }
 
