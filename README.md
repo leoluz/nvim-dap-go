@@ -9,6 +9,7 @@ An extension for [nvim-dap][1] providing configurations for launching go debugge
 - Configuration to attach nvim-dap and Delve into a running process and start a debug session.
 - Configuration to start a debug session in the main function.
 - Configuration to run tests in a debug session.
+- Final Delve configuration is resolved when a debug session starts. This allows to use different addresses and ports for each project or launch configs in a project.
 
 ## Pre-reqs
 
@@ -67,7 +68,9 @@ lua require('dap-go').setup {
     initialize_timeout_sec = 20,
     -- a string that defines the port to start delve debugger.
     -- default to string "${port}" which instructs nvim-dap
-    -- to start the process in a random available port
+    -- to start the process in a random available port.
+    -- if you set a port in your debug configuration, its value will be
+    -- assigned dynamically.
     port = "${port}",
     -- additional args to pass to dlv
     args = {},
@@ -195,6 +198,39 @@ dlv debug -l 127.0.0.1:38697 --headless ./main.go -- subcommand --myflag=xyz
 ```vimL
 nmap <silent> <leader>td :lua require('dap-go').debug_test()<CR>
 ```
+
+## VSCode launch config
+
+Defining the Go debug configurations for all your projects inside your Neovim configuration can be cumbersome and quite strict.
+For more flexibility, `nvim-dap` supports the use of the VSCode launch configurations.
+
+That allows for example to set the Delve port dynamically when you run a debug session. If you create this file in your project (`[root_project]/.vscode/launch.json`):
+
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Remote debug API server",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "port": 4444,
+            "host": "127.0.0.1",
+            "substitutePath": [
+                {
+                    "from": "${workspaceFolder}", "to": "/usr/src/app"
+                }
+            ]
+        }
+    ]
+}
+```
+
+A debug session `Remote debug API server` will appear in the choices, and the Delve port will be dynamically set to `4444`.
+The current version of nvim-dap always loads the file if it exists.
+
+Please see `:h dap-launch.json` for more information.
 
 ## Acknowledgement
 

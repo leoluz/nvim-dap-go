@@ -17,7 +17,8 @@ CONTENTS                                                  *dap-go-toc*
     5. Debugging With Command-Line Arguments . |dap-go-debug-cli-args|
     6. Debugging With Build Flags ............ |dap-go-debug-cli-args|
     7. Debugging With dlv in Headless Mode ... |dap-go-debug-headless|
-    8. Mappings .............................. |dap-go-mappings|
+    8. VSCode launch config .................. |dap-go-vscode-launch|
+    9. Mappings .............................. |dap-go-mappings|
 
 ========================================================================
 FEATURES                                             *dap-go-features*
@@ -35,6 +36,10 @@ FEATURES                                             *dap-go-features*
 - Configuration to start a debug session in the main function.
 
 - Configuration to run tests in a debug session.
+
+- Final Delve configuration is resolved when a debug session starts.
+  This allows to use different addresses and ports for each project or
+  launch configs in a project.
 
 This plugin makes usage of treesitter to find the nearest test to
 debug. Make sure you have the Go treesitter parser installed. If using
@@ -80,7 +85,9 @@ The example bellow shows all the possible configurations:
         initialize_timeout_sec = 20,
         -- a string that defines the port to start delve debugger.
         -- default to string "${port}" which instructs nvim-dap
-        -- to start the process in a random available port
+        -- to start the process in a random available port.
+        -- if you set a port in your debug configuration, its value will be
+        -- assigned dynamically.
         port = "${port}",
         -- additional args to pass to dlv
         args = {},
@@ -207,6 +214,38 @@ Debugging With dlv in Headless Mode           *dap-go-debug-headless*
     3. Call `:lua require('dap').continue()` to start debugging.
     4. Select the new registered option `Attach remote`.
 
+-----------------------------------------------------------------------
+VSCode launch config                           *dap-go-vscode-launch
+
+    1. Create in your Go project a VSCode launch config file (by
+    default its path must be `.vscode/launch.json` relative to your
+    project's root directory):
+>json
+    {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Remote debug API server",
+                "type": "go",
+                "request": "attach",
+                "mode": "remote",
+                "port": 4444,
+                "host": "127.0.0.1",
+                "substitutePath": [
+                    {
+                        "from": "${workspaceFolder}", "to": "/usr/src/app"
+                    }
+                ]
+            }
+        ]
+    }
+<
+
+    2. A debug session `Remote debug API server` will appear in the choices,
+    and the Delve port will be dynamically set to `4444`.
+
+Please see `:h dap-launch.json` for more information.
+
 ========================================================================
 MAPPINGS                                             *dap-go-mappings*
 
@@ -220,5 +259,4 @@ mappings. You can do this by adding the lines bellow to your
     vim.keymap.set("n", "<leader>dt", dapgo.debug_test)
     vim.keymap.set("n", "<leader>dl", dapgo.debug_last_test)
 <
-
 vim:tw=78:et:ft=help:norl:
