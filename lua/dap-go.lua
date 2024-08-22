@@ -14,8 +14,8 @@ local default_config = {
     port = "${port}",
     args = {},
     build_flags = "",
-    -- Automativally handle the issue on Windows where delve needs
-    -- to be run in attched mode or it will fail (actually crashes).
+    -- Automatically handle the issue on Windows where delve needs
+    -- to be run in attached mode or it will fail (actually crashes).
     detached = vim.fn.has("win32") == 0,
   },
   tests = {
@@ -89,6 +89,12 @@ local function setup_delve_adapter(dap, config)
     local host = client_config.host
     if host == nil then
       host = "127.0.0.1"
+    end
+
+    -- Remove the executable if used in remote mode.
+    -- This will prevent the executable from being launched.
+    if client_config.mode == "remote" then
+      delve_config.executable = nil
     end
 
     local listener_addr = host .. ":" .. client_config.port
