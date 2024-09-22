@@ -81,6 +81,21 @@ local function setup_delve_adapter(dap, config)
   }
 
   dap.adapters.go = function(callback, client_config)
+    if client_config.program ~= nil then
+      local program = client_config.program
+      local path = require("plenary.path")
+      local program_path = path:new(program)
+      local program_absolute = program_path:absolute()
+
+      client_config.program = program_absolute
+
+      if program_path:is_dir() then
+        delve_config.executable.cwd = program_absolute
+      elseif program:match("^.+(%..+)$") == ".go" then -- file extension is '.go'
+        delve_config.executable.cwd = tostring(program_path:parent())
+      end
+    end
+
     if client_config.port == nil then
       callback(delve_config)
       return
