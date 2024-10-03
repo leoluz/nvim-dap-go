@@ -89,16 +89,18 @@ local function get_closest_test()
 
   local test_query = vim.treesitter.query.parse(ft, tests_query)
   assert(test_query, "could not parse test query")
-  for _, match, _ in test_query:iter_matches(root, 0, 0, stop_row) do
+  for _, match, _ in test_query:iter_matches(root, 0, 0, stop_row, { all = true }) do
     local test_match = {}
-    for id, node in pairs(match) do
-      local capture = test_query.captures[id]
-      if capture == "testname" then
-        local name = vim.treesitter.get_node_text(node, 0)
-        test_match.name = name
-      end
-      if capture == "parent" then
-        test_match.node = node
+    for id, nodes in pairs(match) do
+      for _, node in ipairs(nodes) do
+        local capture = test_query.captures[id]
+        if capture == "testname" then
+          local name = vim.treesitter.get_node_text(node, 0)
+          test_match.name = name
+        end
+        if capture == "parent" then
+          test_match.node = node
+        end
       end
     end
     table.insert(test_tree, test_match)
@@ -106,16 +108,18 @@ local function get_closest_test()
 
   local subtest_query = vim.treesitter.query.parse(ft, subtests_query)
   assert(subtest_query, "could not parse test query")
-  for _, match, _ in subtest_query:iter_matches(root, 0, 0, stop_row) do
+  for _, match, _ in subtest_query:iter_matches(root, 0, 0, stop_row, { all = true }) do
     local test_match = {}
-    for id, node in pairs(match) do
-      local capture = subtest_query.captures[id]
-      if capture == "testname" then
-        local name = vim.treesitter.get_node_text(node, 0)
-        test_match.name = string.gsub(string.gsub(name, " ", "_"), '"', "")
-      end
-      if capture == "parent" then
-        test_match.node = node
+    for id, nodes in pairs(match) do
+      for _, node in ipairs(nodes) do
+        local capture = subtest_query.captures[id]
+        if capture == "testname" then
+          local name = vim.treesitter.get_node_text(node, 0)
+          test_match.name = string.gsub(string.gsub(name, " ", "_"), '"', "")
+        end
+        if capture == "parent" then
+          test_match.node = node
+        end
       end
     end
     table.insert(test_tree, test_match)
