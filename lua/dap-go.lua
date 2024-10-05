@@ -62,6 +62,25 @@ local function filtered_pick_process()
   return require("dap.utils").pick_process(opts)
 end
 
+local get_parent = (function()
+  local sep = "\\"
+
+  local os = string.lower(jit.os)
+  if os ~= "windows" then
+    sep = "/"
+  end
+
+  local pattern = string.format("^(.+)%s[^%s]+", sep, sep)
+
+  return function(abs_path)
+    local parent = abs_path:match(pattern)
+    if parent ~= nil and not parent:find(sep) then
+      return parent .. sep
+    end
+    return parent
+  end
+end)()
+
 local function setup_delve_adapter(dap, config)
   local args = { "dap", "-l", "127.0.0.1:" .. config.delve.port }
   vim.list_extend(args, config.delve.args)
@@ -81,6 +100,24 @@ local function setup_delve_adapter(dap, config)
   }
 
   dap.adapters.go = function(callback, client_config)
+    if client_config.program ~= nil then
+      local program_absolute = vim.loop.fs_realpath(client_config.program)
+
+      if program_absolute ~= nil then
+        client_config.program = program_absolute
+
+        local is_dir = vim.loop.fs_stat(program_absolute).type == "directory"
+        if is_dir then
+          delve_config.executable.cwd = program_absolute
+        elseif program_absolute:sub(-3) == ".go" then -- file extension is '.go'
+          local parent = get_parent(program_absolute)
+          if parent ~= nil then
+            delve_config.executable.cwd = parent
+          end
+        end
+      end
+    end
+
     if client_config.port == nil then
       callback(delve_config)
       return
