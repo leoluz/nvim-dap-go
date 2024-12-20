@@ -83,8 +83,8 @@ lua require('dap-go').setup {
     -- avaliable ui interactive function to prompt for arguments get_arguments
     build_flags = {},
     -- whether the dlv process to be created detached or not. there is
-    -- an issue on Windows where this needs to be set to false
-    -- otherwise the dlv server creation will fail.
+    -- an issue on delve versions < 1.24.0 for Windows where this needs to be
+    -- set to false, otherwise the dlv server creation will fail.
     -- avaliable ui interactive function to prompt for build flags: get_build_flags
     detached = vim.fn.has("win32") == 0,
     -- the current working directory to run dlv from, if other than
