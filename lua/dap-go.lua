@@ -17,6 +17,7 @@ local default_config = {
     -- Automativally handle the issue on Windows where delve needs
     -- to be run in attched mode or it will fail (actually crashes).
     detached = vim.fn.has("win32") == 0,
+    output_mode = "remote",
   },
   tests = {
     verbose = false,
@@ -107,6 +108,7 @@ local function setup_go_configuration(dap, configs)
       request = "launch",
       program = "${file}",
       buildFlags = configs.delve.build_flags,
+      outputMode = configs.delve.output_mode,
     },
     {
       type = "go",
@@ -115,6 +117,7 @@ local function setup_go_configuration(dap, configs)
       program = "${file}",
       args = get_arguments,
       buildFlags = configs.delve.build_flags,
+      outputMode = configs.delve.output_mode,
     },
     {
       type = "go",
@@ -123,6 +126,7 @@ local function setup_go_configuration(dap, configs)
       program = "${file}",
       args = get_arguments,
       buildFlags = get_build_flags,
+      outputMode = configs.delve.output_mode,
     },
     {
       type = "go",
@@ -130,6 +134,7 @@ local function setup_go_configuration(dap, configs)
       request = "launch",
       program = "${fileDirname}",
       buildFlags = configs.delve.build_flags,
+      outputMode = configs.delve.output_mode,
     },
     {
       type = "go",
@@ -146,6 +151,7 @@ local function setup_go_configuration(dap, configs)
       mode = "test",
       program = "${file}",
       buildFlags = configs.delve.build_flags,
+      outputMode = configs.delve.output_mode,
     },
     {
       type = "go",
@@ -154,6 +160,7 @@ local function setup_go_configuration(dap, configs)
       mode = "test",
       program = "./${relativeFileDirname}",
       buildFlags = configs.delve.build_flags,
+      outputMode = configs.delve.output_mode,
     },
   }
 
