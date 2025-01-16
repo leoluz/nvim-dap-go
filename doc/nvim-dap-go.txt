@@ -99,9 +99,9 @@ The example bellow shows all the possible configurations:
         -- ignored by delve in dap mode.
         build_flags = "",
         -- whether the dlv process to be created detached or not. there is
-        -- an issue on Windows where this needs to be set to false
-        -- otherwise the dlv server creation will fail.
-        detached = true
+        -- an issue on delve versions < 1.24.0 for Windows where this needs to be
+        -- set to false, otherwise the dlv server creation will fail.
+        detached = vim.fn.has("win32") == 0,
       },
       -- options related to running closest test
       tests = {

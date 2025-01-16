@@ -14,8 +14,8 @@ local default_config = {
     port = "${port}",
     args = {},
     build_flags = "",
-    -- Automativally handle the issue on Windows where delve needs
-    -- to be run in attched mode or it will fail (actually crashes).
+    -- Automatically handle the issue on delve Windows versions < 1.24.0
+    -- where delve needs to be run in attched mode or it will fail (actually crashes).
     detached = vim.fn.has("win32") == 0,
     output_mode = "remote",
   },
