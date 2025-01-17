@@ -150,7 +150,7 @@ Debugging With Build Flags                  *dap-go-debug-build-flags*
 
     1. Register a new option to debug with build flags:
 >lua
-    require('dap-go').setup {
+    require('dap-go').setup({
       dap_configurations = {
         {
             type = "go",
