@@ -93,10 +93,18 @@ local function setup_delve_adapter(dap, config)
     end
 
     local listener_addr = host .. ":" .. client_config.port
-    delve_config.port = client_config.port
-    delve_config.executable.args = { "dap", "-l", listener_addr }
+    local dlv_cfg = {
+      type = delve_config.type,
+      port = client_config.port,
+      options = delve_config.options,
+    }
 
-    callback(delve_config)
+    if client_config.mode ~= "remote" then
+      dlv_cfg.executable = delve_config.executable
+      dlv_cfg.executable.args = { "dap", "-l", listener_addr }
+    end
+
+    callback(dlv_cfg)
   end
 end
 
