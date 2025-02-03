@@ -82,6 +82,24 @@ local function setup_delve_adapter(dap, config)
   }
 
   dap.adapters.go = function(callback, client_config)
+    if client_config.program ~= nil then
+      local program_absolute = vim.loop.fs_realpath(client_config.program)
+
+      if program_absolute ~= nil then
+        client_config.program = program_absolute
+
+        local is_dir = vim.loop.fs_stat(program_absolute).type == "directory"
+        if is_dir then
+          delve_config.executable.cwd = program_absolute
+        elseif vim.fn.fnamemodify(program_absolute, ":e") == ".go" then -- file extension is '.go'
+          local parent = vim.fn.fnamemodify(program_absolute, ":p:h")
+          if parent ~= nil then
+            delve_config.executable.cwd = parent
+          end
+        end
+      end
+    end
+
     if client_config.port == nil then
       callback(delve_config)
       return
