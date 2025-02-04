@@ -193,7 +193,7 @@ function M.setup(opts)
   setup_go_configuration(dap, internal_global_config)
 end
 
-local function debug_test(testname, testpath, build_flags, extra_args)
+local function debug_test(testname, testpath, build_flags, extra_args, custom_config)
   local dap = load_module("dap")
 
   local config = {
@@ -204,7 +204,9 @@ local function debug_test(testname, testpath, build_flags, extra_args)
     program = testpath,
     args = { "-test.run", "^" .. testname .. "$" },
     buildFlags = build_flags,
+    outputMode = "remote",
   }
+  config = vim.tbl_deep_extend("force", config, custom_config or {})
 
   if not vim.tbl_isempty(extra_args) then
     table.move(extra_args, 1, #extra_args, #config.args + 1, config.args)
@@ -213,7 +215,7 @@ local function debug_test(testname, testpath, build_flags, extra_args)
   dap.run(config)
 end
 
-function M.debug_test()
+function M.debug_test(custom_config)
   local test = ts.closest_test()
 
   if test.name == "" or test.name == nil then
@@ -232,7 +234,7 @@ function M.debug_test()
     extra_args = { "-test.v" }
   end
 
-  debug_test(test.name, test.package, M.test_buildflags, extra_args)
+  debug_test(test.name, test.package, M.test_buildflags, extra_args, custom_config)
 
   return true
 end
