@@ -129,6 +129,15 @@ To debug the closest method above the cursor use you can run:
     :lua require('dap-go').debug_test()`
 <
 
+The |dap-configuration| in use can be customized by passing an optional
+table argument to `debug-test`. For example, you can override default
+build flags as follows:
+>lua
+    require("dap-go").debug_test({
+      buildFlags = "-tags=integration",
+    })
+<
+
 Once a test runs, you can simply run it again from anywhere:
 >
     :lua require('dap-go').debug_last_test()`
