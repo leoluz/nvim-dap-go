@@ -1,3 +1,4 @@
+*nvim-dap-go.txt*                            Go extension for nvim-dap
 ========================================================================
 INTRODUCTION                                                  *dap-go*
 
