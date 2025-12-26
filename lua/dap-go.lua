@@ -82,20 +82,38 @@ local function setup_delve_adapter(dap, config)
   }
 
   dap.adapters.go = function(callback, client_config)
-    if client_config.port == nil then
+    -- Remote attach mode: connect to existing delve server without launching new process
+    -- This is for debugging remote applications (containers, VMs, etc.)
+    if client_config.mode == "remote" and client_config.request == "attach" then
+      local host = client_config.host or "127.0.0.1"
+      local port = client_config.port
+
+      if port == nil then
+        error("Remote attach requires 'port' to be specified in debug configuration")
+      end
+
+      callback({
+        type = "server",
+        host = host,
+        port = port,
+        options = {
+          initialize_timeout_sec = config.delve.initialize_timeout_sec,
+        },
+      })
+      return
+    end
+
+    -- Local debugging with custom port
+    if client_config.port ~= nil then
+      local host = client_config.host or "127.0.0.1"
+      local listener_addr = host .. ":" .. client_config.port
+      delve_config.port = client_config.port
+      delve_config.executable.args = { "dap", "-l", listener_addr }
       callback(delve_config)
       return
     end
 
-    local host = client_config.host
-    if host == nil then
-      host = "127.0.0.1"
-    end
-
-    local listener_addr = host .. ":" .. client_config.port
-    delve_config.port = client_config.port
-    delve_config.executable.args = { "dap", "-l", listener_addr }
-
+    -- Default: launch new delve process with default config
     callback(delve_config)
   end
 end

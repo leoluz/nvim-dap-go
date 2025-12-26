@@ -44,7 +44,7 @@ It is possible to customize nvim-dap-go by passing a config table in the setup f
 The example below shows all the possible configurations:
 
 ```lua
-lua require('dap-go').setup {
+require('dap-go').setup {
   -- Additional dap configurations can be added.
   -- dap_configurations accepts a list of tables where each entry
   -- represents a dap configuration. For more details do:
@@ -56,6 +56,7 @@ lua require('dap-go').setup {
       name = "Attach remote",
       mode = "remote",
       request = "attach",
+      port = 38697,
     },
   },
   -- delve configurations
@@ -172,13 +173,15 @@ require("dap-go").setup({
 1. Register a new option to attach to a remote debugger:
 
 ```lua
-lua require('dap-go').setup {
+require('dap-go').setup {
   dap_configurations = {
     {
       type = "go",
       name = "Attach remote",
       mode = "remote",
       request = "attach",
+      port = 38697,  -- Port must match the dlv server port
+      host = "127.0.0.1",  -- Optional, defaults to 127.0.0.1
     },
   },
 }
@@ -192,6 +195,12 @@ dlv debug -l 127.0.0.1:38697 --headless ./main.go -- subcommand --myflag=xyz
 
 1. Call `:lua require('dap').continue()` to start debugging.
 1. Select the new registered option `Attach remote`.
+
+**Note:** Remote attach connects to an existing Delve server without launching a new process. This is useful for:
+
+- Debugging applications running in containers
+- Debugging on remote machines or VMs
+- Attaching to already-running processes
 
 ## Mappings
 
@@ -208,22 +217,23 @@ That allows for example to set the Delve port dynamically when you run a debug s
 
 ```json
 {
-    "version": "0.2.0",
-    "configurations": [
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Remote debug API server",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "port": 4444,
+      "host": "127.0.0.1",
+      "substitutePath": [
         {
-            "name": "Remote debug API server",
-            "type": "go",
-            "request": "attach",
-            "mode": "remote",
-            "port": 4444,
-            "host": "127.0.0.1",
-            "substitutePath": [
-                {
-                    "from": "${workspaceFolder}", "to": "/usr/src/app"
-                }
-            ]
+          "from": "${workspaceFolder}",
+          "to": "/usr/src/app"
         }
-    ]
+      ]
+    }
+  ]
 }
 ```
 
